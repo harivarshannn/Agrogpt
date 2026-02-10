@@ -1,0 +1,32 @@
+# AgroGPT Requirements
+# Core web framework
+Flask==3.1.2
+Werkzeug==3.1.3
+
+# LLM Interface
+# ollama>=0.1.0
+groq>=0.9.0
+
+# Machine Learning and AI (for Vision Model)
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Image processing
+Pillow>=9.0.0
+numpy>=1.21.0
+
+# Data processing
+pandas>=1.3.0
+scikit-learn>=1.0.0
+scipy>=1.7.0
+
+# Utilities
+requests>=2.25.0
+tqdm>=4.60.0
+psutil>=5.8.0
+python-dotenv>=1.0.0
+
+# Development and testing (optional)
+# pytest>=6.0.0
+# pytest-cov>=2.12.0
+
