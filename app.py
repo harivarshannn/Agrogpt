@@ -83,6 +83,7 @@ def get_status():
         'loading_progress': status_message
     })
 
+
 @app.route('/api/weather', methods=['GET'])
 def fetch_weather():
     """Fetch live weather for a district"""
