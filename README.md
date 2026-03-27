@@ -1,3 +1,12 @@
+---
+title: AgroGPT
+emoji: 🌿
+colorFrom: green
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
 # AgroGPT Image Recognition Feature
 
 ## Overview
