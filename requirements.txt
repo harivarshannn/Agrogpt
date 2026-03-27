@@ -18,14 +18,15 @@ Pillow>=9.0.0
 numpy>=1.21.0
 
 # Data processing
-pandas>=1.3.0
-scikit-learn>=1.0.0
-scipy>=1.7.0
+# Disabled for Vercel limits as they are currently unused
+# pandas>=1.3.0
+# scikit-learn>=1.0.0
+# scipy>=1.7.0
 
 # Utilities
 requests>=2.25.0
-tqdm>=4.60.0
-psutil>=5.8.0
+# tqdm>=4.60.0 # Unused
+# psutil>=5.8.0 # Unused
 python-dotenv>=1.0.0
 
 # Development and testing (optional)
