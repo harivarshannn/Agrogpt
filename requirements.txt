@@ -8,8 +8,10 @@ Werkzeug==3.1.3
 groq>=0.9.0
 
 # Machine Learning and AI (for Vision Model)
-torch>=2.0.0
-torchvision>=0.15.0
+# PyTorch is disabled for Vercel deployment due to the 250MB Serverless size limit.
+# Local execution will fallback to simulated detection or requires manual installation.
+# torch>=2.0.0
+# torchvision>=0.15.0
 
 # Image processing
 Pillow>=9.0.0

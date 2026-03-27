@@ -12,11 +12,26 @@ import requests
 
 # Import the new model functionality
 from model import check_ollama_connection, generate_with_ollama, analyze_image_for_disease
+from weather import get_current_weather, TN_DISTRICTS
 
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable static file caching
+
+@app.after_request
+def add_no_cache_headers(response):
+    """Prevent browser from caching static files during development."""
+    if request.path.startswith('/static/'):
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
 
 # Configuration for file uploads
-UPLOAD_FOLDER = 'uploads'
+if os.environ.get('VERCEL_ENV') or os.environ.get('VERCEL'):
+    UPLOAD_FOLDER = '/tmp'
+else:
+    UPLOAD_FOLDER = 'uploads'
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -68,6 +83,19 @@ def get_status():
         'loading_progress': status_message
     })
 
+@app.route('/api/weather', methods=['GET'])
+def fetch_weather():
+    """Fetch live weather for a district"""
+    district = request.args.get('district', '').strip()
+    if not district:
+        return jsonify({'error': 'District parameter is required.'}), 400
+    
+    weather_data = get_current_weather(district)
+    if weather_data.get('success'):
+        return jsonify(weather_data)
+    else:
+        return jsonify(weather_data), 500
+
 @app.route('/api/ask', methods=['POST'])
 def ask_question():
     """Handle user questions"""
@@ -76,10 +104,17 @@ def ask_question():
     
     data = request.get_json()
     question = data.get('question', '').strip()
+    district = data.get('district', '').strip()
     
     if not question:
         return jsonify({'error': 'Please provide a question.'}), 400
     
+    weather_context = ""
+    if district and district in TN_DISTRICTS:
+        weather_data = get_current_weather(district)
+        if weather_data.get('success'):
+            weather_context = f"\n\nCurrent Weather in {district}, Tamil Nadu: {weather_data['temperature']}°C, Humidity: {weather_data['humidity']}%, Condition: {weather_data['condition']} {weather_data['emoji']}, Wind Speed: {weather_data['wind_speed']} km/h. Please consider this live weather context in your advice if relevant."
+
     try:
         # Construct prompt
         full_prompt = (
@@ -90,6 +125,7 @@ def ask_question():
             "Use double line breaks between these sections. "
             "CRITICAL: Do not use Latin/English alphabets for Malayalam or Tamil. "
             "Do not use markdown formatting or asterisks (*).\n\n"
+            f"{weather_context}\n"
             f"Question: {question}\nAnswer:"
         )
         

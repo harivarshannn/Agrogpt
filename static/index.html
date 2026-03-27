@@ -1,123 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroGPT — Your Expert Farmer Assistant</title>
+    <title>AgroGPT — The Future of Agriculture Intelligence</title>
+    <meta name="description" content="AI-powered farming intelligence. State-of-the-art crop advice, soil health, and plant disease detection for the next generation of farmers.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/index.css">
 </head>
+
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header>
-            <div class="logo-section">
-                <span class="logo-icon">🌿</span>
+    <!-- ──────────────── BACKGROUND DECORATIONS ──────────────── -->
+    <div class="bg-accent-blob"></div>
+
+    <!-- ──────────────── NAVIGATION BAR ──────────────── -->
+    <header>
+        <div class="nav-content">
+            <div class="logo-wrap">
+                <img src="static/logo.png" alt="AgroGPT Logo" class="logo-img">
                 <h1 data-i18n="title">AgroGPT</h1>
-                <div class="language-switcher">
-                    <select id="langSelect" onchange="window.changeLanguage(this.value)">
-                        <option value="en">English</option>
-                        <option value="ta">தமிழ் (Tamil)</option>
-                    </select>
-                </div>
             </div>
-            <p class="tagline" data-i18n="tagline">Smart Agriculture Intelligence at Your Fingertips</p>
-        </header>
 
+            <div class="lang-box">
+                <select id="langSelect" onchange="window.changeLanguage(this.value)">
+                    <option value="en">English (Global)</option>
+                    <option value="ta">தமிழ் (Tamil)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- ──────────────── HERO AREA ──────────────── -->
+        <section class="hero">
+            <h2 data-i18n="tagline">
+                The Future of Agriculture is <span>Fingertips</span>
+            </h2>
+        </section>
+
+        <!-- ──────────────── MAIN VIEW ──────────────── -->
         <main class="dashboard">
-            <!-- Left Column: Primary Interaction -->
-            <div class="interaction-zone">
-                <!-- Ask AI Card -->
-                <section class="card glass">
-                    <h2 class="card-title" data-i18n="ask_title">💬 Ask Agriculture Assistant</h2>
+
+            <!-- ── Left Column: Interaction & Vision ── -->
+            <div class="primary-zone">
+
+                <!-- ASK AI CENTERPIECE -->
+                <section class="card" id="chat-vessel">
+                    <h3 class="card-title" data-i18n="ask_title">💬 Your Agricultural Assistant</h3>
+                    
                     <div class="chat-section">
-                        <div class="input-container">
-                            <textarea id="questionInput" data-i18n-placeholder="placeholder" placeholder="How can I help you today? Ask about crops, soil, pests..."></textarea>
+                        <div class="input-wrap">
+                            <textarea id="questionInput" 
+                                data-i18n-placeholder="placeholder"
+                                placeholder="How can I help you today? Ask about crops, soil, pests..."></textarea>
                         </div>
-                        <div class="action-buttons">
-                            <button class="btn-primary" id="askButton" onclick="askQuestion()" data-i18n="btn_ask">Ask AgroGPT</button>
-                            <button class="btn-secondary" id="micML" onclick="toggleSpeech('micML', 'ml-IN')" title="മലയാളത്തിൽ സംസാരിക്കുക">🎤 ML</button>
-                            <button class="btn-secondary" id="micTA" onclick="toggleSpeech('micTA', 'ta-IN')" title="தமிழில் பேசவும்">🎤 TA</button>
-                            <button class="btn-secondary" id="micEN" onclick="toggleSpeech('micEN', 'en-US')" title="Speak in English">🎤 EN</button>
+
+                        <div class="btn-row">
+                            <button class="btn-primary" id="askButton" onclick="askQuestion()" data-i18n="btn_ask">
+                                Ask AgroGPT
+                            </button>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-pill" id="micML" onclick="toggleSpeech('micML','ml-IN')" 
+                                    title="മലയാളത്തിൽ സംസാരിക്കുക">🎤 ML</button>
+                                <button class="btn-pill" id="micTA" onclick="toggleSpeech('micTA','ta-IN')" 
+                                    title="தமிழில் பேசவும்">🎤 TA</button>
+                                <button class="btn-pill" id="micEN" onclick="toggleSpeech('micEN','en-US')" 
+                                    title="Speak in English">🎤 EN</button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Thinking State -->
-                    <div id="chatLoading" class="hidden" style="margin-top: 20px; text-align: center; color: var(--primary);">
-                        <p id="loadingText" data-i18n="loading">🌱 Assistant is thinking...</p>
+                    <!-- AI LOADING STATE -->
+                    <div id="chatLoading" class="hidden" style="margin-top: 32px; display: flex; align-items: center; gap: 16px;">
+                        <div class="spinner"></div>
+                        <p style="font-weight: 800; color: var(--ai-green);" data-i18n="loading">🌱 Synthesizing Agri-Intelligence...</p>
                     </div>
 
-                    <!-- AI Response Area -->
+                    <!-- AI RESPONSE BUBBLE -->
                     <div id="responseContainer" class="response-container">
-                        <div class="response-header" data-i18n="response_header">✨ Assistant's Answer</div>
+                        <div class="response-header" data-i18n="response_header">✨ AgroGPT Intelligence Response</div>
                         <div id="responseText" class="response-content"></div>
                     </div>
                 </section>
 
-                <!-- Vision Card -->
-                <section class="card" style="margin-top: 32px;">
-                    <h2 class="card-title" data-i18n="scanner_title">🔍 Plant Disease Scanner</h2>
-                    <p style="margin-bottom: 20px; color: var(--text-muted);" data-i18n="scanner_desc">Upload a photo of your plant leaves to identify diseases and get organic/chemical treatment advice.</p>
-                    
-                    <div class="upload-area" id="uploadArea">
-                        <span class="upload-icon">📸</span>
-                        <p class="upload-text" data-i18n="upload_text">Click to Take a Photo or Upload</p>
-                        <p class="upload-hint" data-i18n="upload_hint">Supports JPG, PNG (Max 16MB)</p>
+                <!-- VISION SCANNER -->
+                <section class="card" style="margin-top: 32px;" id="scanner-vessel">
+                    <h3 class="card-title" data-i18n="scanner_title">🔍 Disease Vision Scanner</h3>
+                    <p style="margin-bottom: 24px; color: var(--text-soft); font-size: 0.95rem; line-height: 1.6;" data-i18n="scanner_desc">
+                        Our advanced neural network identifies plant diseases from a single photo. Instant diagnosis & expert recovery advice.
+                    </p>
+
+                    <div class="upload-zone" id="uploadArea">
+                        <span class="scanner-icon">📸</span>
+                        <p style="font-weight: 900; color: var(--text-pure); font-size: 1.1rem;" data-i18n="upload_text">Tap to Engage Scanner</p>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;" data-i18n="upload_hint">Supports JPG, PNG (Max 16MB)</p>
                         <input type="file" id="imageInput" accept="image/*" style="display: none;">
                     </div>
 
                     <div id="previewContainer" class="preview-container hidden">
-                        <img id="previewImg" src="" alt="Captured Image">
-                        <div class="action-buttons" style="justify-content: center; margin-top: 20px;">
-                            <button class="btn-primary" id="analyzeButton" onclick="analyzeImage()" data-i18n="btn_analyze">✨ Analyze Disease</button>
-                            <button class="btn-secondary" style="background: #FFEBEE; color: #C62828;" onclick="removeImage()" data-i18n="btn_clear">🗑️ Clear</button>
+                        <div style="position: relative; overflow: hidden; border-radius: 20px;">
+                            <img id="previewImg" src="" alt="Captured Image" style="max-width: 100%; display: block; box-shadow: 0 30px 60px rgba(0,0,0,0.15);">
+                        </div>
+                        <div class="btn-row" style="justify-content: center; margin-top: 32px;">
+                            <button class="btn-primary" id="analyzeButton" onclick="analyzeImage()" data-i18n="btn_analyze">✨ Neural Analysis</button>
+                            <button class="btn-pill" style="color: #EF4444; background: #FEF2F2; border-color: rgba(239,68,68,0.1);" onclick="removeImage()" data-i18n="btn_clear">🗑️ Clear Scan</button>
                         </div>
                     </div>
                 </section>
+
             </div>
 
-            <!-- Right Column: Info & Tips -->
-            <aside class="info-section">
-                <!-- Examples Card -->
-                <div class="card glass">
-                    <h3 class="card-title" style="font-size: 1.2rem;" data-i18n="try_asking">💡 Try Asking...</h3>
-                    <div class="example-chips">
-                        <div class="chip" onclick="setQuestion('What are best practices for organic ginger farming?')" data-i18n="ex_ginger">Organic Ginger</div>
-                        <div class="chip" onclick="setQuestion('How to control tomato leaf curl virus?')" data-i18n="ex_pests">Tomato Pests</div>
-                        <div class="chip" onclick="setQuestion('Best fertilizer for high yield paddy?')" data-i18n="ex_paddy">Paddy Nutrition</div>
-                        <div class="chip" onclick="setQuestion('Ideal soil pH for coconut trees?')" data-i18n="ex_soil">Soil Health</div>
-                        <div class="chip" onclick="setQuestion('Suggest seasonal vegetables for Kerala climate.')" data-i18n="ex_crops">Seasonal Crops</div>
+            <!-- ── Right Column: Context & Discovery ── -->
+            <aside class="sidebar">
+
+                <!-- WEATHER INTELLIGENCE -->
+                <div class="card" id="weather-vessel" style="background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4));">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
+                        <h4 class="card-title" style="margin-bottom: 0;">🛰️ Live Reports</h4>
+                        <select id="districtSelect" onchange="window.fetchWeather()" 
+                            style="padding: 8px 16px; border-radius: var(--r-pill); border: 1.5px solid rgba(0,0,0,0.05); font-size: 0.75rem; font-weight: 800; color: var(--text-pure); outline: none; background: #fff; cursor: pointer;">
+                            <option value="">Select Region</option>
+                        </select>
+                    </div>
+
+                    <div id="weatherContent" class="hidden">
+                        <div style="display: flex; align-items: center; gap: 24px;">
+                            <span id="weatherEmoji" style="font-size: 4rem; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15));">☀️</span>
+                            <div>
+                                <div id="weatherTemp" style="font-size: 3rem; font-weight: 900; letter-spacing: -3px; line-height: 1; color: var(--text-pure);">--°C</div>
+                                <div id="weatherDesc" style="font-weight: 700; color: var(--ai-green); font-size: 0.95rem; margin-top: 4px;">Loading...</div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px;">
+                            <div style="background: rgba(255,255,255,0.5); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.8);">
+                                <span style="font-size: 1.5rem;">💧</span>
+                                <div id="weatherHumidity" style="font-weight: 900; font-size: 1.25rem; margin-top: 4px;">--%</div>
+                                <small style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Humidity</small>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.5); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.8);">
+                                <span style="font-size: 1.5rem;">💨</span>
+                                <div id="weatherWind" style="font-weight: 900; font-size: 1.25rem; margin-top: 4px;">-- km/h</div>
+                                <small style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Wind Speed</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="weatherLoading" style="text-align: center; padding: 40px 0;">
+                        <div class="spinner" style="margin: 0 auto; width: 32px; height: 32px;"></div>
+                        <p style="margin-top: 16px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">Syncing Satellite Data...</p>
                     </div>
                 </div>
 
-                <!-- Tips Card -->
-                <div class="card glass">
-                    <h3 class="card-title" style="font-size: 1.2rem;" data-i18n="pro_tips">🌟 Pro Tips</h3>
-                    <div style="display: flex; flex-direction: column; gap: 16px;">
-                        <div class="tip-box">
-                            <span class="tip-icon">📸</span>
-                            <div>
-                                <strong data-i18n="tip_photos_title">Clear Photos:</strong> <span data-i18n="tip_photos_desc">Capture the top and bottom of affected leaves for better detection.</span>
+                <!-- DISCOVERY CHIPS -->
+                <div class="card" id="try-vessel">
+                    <h4 class="card-title" data-i18n="try_asking" style="font-size: 1.1rem;">💡 Knowledge Discovery</h4>
+                    <div class="chip-grid">
+                        <div class="chip" onclick="setQuestion('What are best practices for organic ginger farming?')" data-i18n="ex_ginger">🌿 Organic Ginger Guide</div>
+                        <div class="chip" onclick="setQuestion('How to control tomato leaf curl virus?')" data-i18n="ex_pests">🍅 Tomato Virus Control</div>
+                        <div class="chip" onclick="setQuestion('Best fertilizer for high yield paddy?')" data-i18n="ex_paddy">🌾 Paddy Yield Strategy</div>
+                        <div class="chip" onclick="setQuestion('Ideal soil pH for coconut trees?')" data-i18n="ex_soil">🌱 Soil pH Intelligence</div>
+                        <div class="chip" onclick="setQuestion('Suggest seasonal vegetables for Kerala climate.')" data-i18n="ex_crops">🥦 Climate-Adaptive Crops</div>
+                    </div>
+                </div>
+
+                <!-- EXPERT SYSTEM TIPS -->
+                <div class="card" id="tips-vessel" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.03), rgba(15, 23, 42, 0.05));">
+                    <h4 class="card-title" data-i18n="pro_tips" style="font-size: 1.1rem;">🌟 Precision Systems</h4>
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="tip-box" style="background: #FFFBEB; border: 1px solid rgba(245,158,11,0.1);">
+                            <span style="font-size: 1.5rem;">📸</span>
+                            <div style="font-size: 0.9rem; line-height: 1.6; color: #78350F;">
+                                <strong data-i18n="tip_photos_title" style="display: block; margin-bottom: 4px; font-weight: 900;">PHOTO PROTOCOL:</strong>
+                                <span data-i18n="tip_photos_desc">Utilize macro-mode for high-accuracy neural disease recognition.</span>
                             </div>
                         </div>
-                        <div class="tip-box" style="background: #E3F2FD; border-left-color: #1976D2;">
-                            <span class="tip-icon">🎤</span>
-                            <div>
-                                <strong data-i18n="tip_voice_title">Voice Commands:</strong> <span data-i18n="tip_voice_desc">Click ML or EN and ask your question loudly for better results.</span>
+                        <div class="tip-box" style="background: #F0F9FF; border: 1px solid rgba(14,165,233,0.1);">
+                            <span style="font-size: 1.5rem;">🎤</span>
+                            <div style="font-size: 0.9rem; line-height: 1.6; color: #075985;">
+                                <strong data-i18n="tip_voice_title" style="display: block; margin-bottom: 4px; font-weight: 900;">VOICE SYNC:</strong>
+                                <span data-i18n="tip_voice_desc">Engage regional voice synthesis for low-latency agricultural support.</span>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </aside>
         </main>
 
-        <!-- Dynamic Status Bar -->
-        <div class="status-bar">
-            <div id="statusDot" class="status-dot"></div>
-            <span id="statusText" data-i18n="status_connecting">Connecting...</span>
+        <!-- FLOATING NEURAL STATUS -->
+        <div class="status-pill">
+            <div id="statusDot" class="status-indicator"></div>
+            <span id="statusText" data-i18n="status_connecting">Connecting Neural Net...</span>
         </div>
-    </div>
 
-    <!-- Logic -->
+    </div><!-- /container -->
+
     <script src="static/index.js"></script>
 </body>
 </html>

@@ -15,6 +15,83 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewImg = document.getElementById('previewImg');
     const analyzeButton = document.getElementById('analyzeButton');
 
+    // Weather elements
+    const districtSelect = document.getElementById('districtSelect');
+    const weatherContent = document.getElementById('weatherContent');
+    const weatherLoading = document.getElementById('weatherLoading');
+    const weatherEmoji = document.getElementById('weatherEmoji');
+    const weatherTemp = document.getElementById('weatherTemp');
+    const weatherDesc = document.getElementById('weatherDesc');
+    const weatherHumidity = document.getElementById('weatherHumidity');
+    const weatherWind = document.getElementById('weatherWind');
+
+    const tnDistricts = [
+        "Ariyalur", "Chengalpattu", "Chennai", "Coimbatore", "Cuddalore",
+        "Dharmapuri", "Dindigul", "Erode", "Kallakurichi", "Kanchipuram",
+        "Kanyakumari", "Karur", "Krishnagiri", "Madurai", "Mayiladuthurai",
+        "Nagapattinam", "Namakkal", "Nilgiris", "Perambalur", "Pudukkottai",
+        "Ramanathapuram", "Ranipet", "Salem", "Sivaganga", "Tenkasi",
+        "Thanjavur", "Theni", "Thoothukudi", "Tiruchirappalli", "Tirunelveli",
+        "Tirupathur", "Tiruppur", "Tiruvallur", "Tiruvannamalai", "Tiruvarur",
+        "Vellore", "Viluppuram", "Virudhunagar"
+    ];
+
+    // Populate districts
+    if (districtSelect) {
+        tnDistricts.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = d;
+            districtSelect.appendChild(opt);
+        });
+
+        const savedDistrict = localStorage.getItem('agrogpt_district');
+        if (savedDistrict && tnDistricts.includes(savedDistrict)) {
+            districtSelect.value = savedDistrict;
+        }
+    }
+
+    window.fetchWeather = async () => {
+        const district = districtSelect.value;
+        if (!district) {
+            weatherContent.classList.add('hidden');
+            weatherLoading.classList.add('hidden');
+            return;
+        }
+
+        localStorage.setItem('agrogpt_district', district);
+        weatherContent.classList.add('hidden');
+        weatherLoading.classList.remove('hidden');
+
+        try {
+            const res = await fetch(`/api/weather?district=${encodeURIComponent(district)}`);
+            const data = await res.json();
+
+            if (data.success) {
+                weatherEmoji.textContent = data.emoji;
+                weatherTemp.textContent = `${data.temperature}°C`;
+                weatherDesc.textContent = data.condition;
+                weatherHumidity.textContent = `${data.humidity}%`;
+                weatherWind.textContent = `${data.wind_speed} km/h`;
+
+                weatherLoading.classList.add('hidden');
+                weatherContent.classList.remove('hidden');
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (e) {
+            weatherLoading.classList.add('hidden');
+            weatherContent.classList.add('hidden');
+            console.error('Weather fetch error:', e);
+        }
+    };
+
+    if (districtSelect && districtSelect.value) {
+        window.fetchWeather();
+    } else if (weatherLoading) {
+        weatherLoading.classList.add('hidden');
+    }
+
     let selectedFile = null;
     let recognition = null;
     let isRecording = false;
@@ -144,7 +221,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question })
+                body: JSON.stringify({
+                    question: question,
+                    district: districtSelect ? districtSelect.value : ''
+                })
             });
             const data = await res.json();
             showResponse(data.answer, !res.ok);

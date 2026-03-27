@@ -3,9 +3,13 @@ Disease Detection Module for AgroGPT
 This module integrates the trained PyTorch model for plant disease detection.
 """
 
-import torch
-import torch.nn as nn
-from torchvision import transforms
+try:
+    import torch
+    import torch.nn as nn
+    from torchvision import transforms
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
 from PIL import Image
 import json
 import os
@@ -25,15 +29,23 @@ class DiseaseDetector:
         self.classes_path = classes_path
         self.model = None
         self.classes = []
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.transform = transforms.Compose([
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ])
+        if TORCH_AVAILABLE:
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            self.transform = transforms.Compose([
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            ])
+        else:
+            self.device = None
+            self.transform = None
 
         # Load model and classes
-        self._load_model()
+        if TORCH_AVAILABLE:
+            self._load_model()
+        else:
+            print("PyTorch not available. Using simulated detection.")
+            self.model = None
         self._load_classes()
 
         # Disease-specific advice database
