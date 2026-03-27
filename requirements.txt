@@ -8,25 +8,23 @@ Werkzeug==3.1.3
 groq>=0.9.0
 
 # Machine Learning and AI (for Vision Model)
-# PyTorch is disabled for Vercel deployment due to the 250MB Serverless size limit.
-# Local execution will fallback to simulated detection or requires manual installation.
-# torch>=2.0.0
-# torchvision>=0.15.0
+# Restored for Azure deployment
+torch>=2.0.0
+torchvision>=0.15.0
 
 # Image processing
 Pillow>=9.0.0
 numpy>=1.21.0
 
 # Data processing
-# Disabled for Vercel limits as they are currently unused
-# pandas>=1.3.0
-# scikit-learn>=1.0.0
-# scipy>=1.7.0
+pandas>=1.3.0
+scikit-learn>=1.0.0
+scipy>=1.7.0
 
 # Utilities
 requests>=2.25.0
-# tqdm>=4.60.0 # Unused
-# psutil>=5.8.0 # Unused
+tqdm>=4.60.0
+psutil>=5.8.0
 python-dotenv>=1.0.0
 
 # Development and testing (optional)
