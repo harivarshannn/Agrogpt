@@ -15,11 +15,8 @@ load_dotenv()
 OLLAMA_API_URL = "Groq Cloud API"
 OLLAMA_MODEL = "llama-3.3-70b-versatile"  # Upgraded model for better Tamil accuracy
 
-# Initialize Groq client
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# Initialize Groq client dynamically
 client = None
-if GROQ_API_KEY:
-    client = Groq(api_key=GROQ_API_KEY)
 
 def print_header() -> None:
     print("AgroGPT (Ollama Edition) starting...", flush=True)
@@ -27,17 +24,22 @@ def print_header() -> None:
 
 def check_ollama_connection() -> bool:
     """Check if Groq API is reachable and key is valid (mimicking Ollama check)."""
-    if not GROQ_API_KEY:
-        print("Error: GROQ_API_KEY not found in .env file.", flush=True)
-        return False
+    global client
+    api_key = os.getenv("GROQ_API_KEY")
     
-    try:
-        # Simple test call to verify connection
-        if client:
-            client.models.list()
-            print("Connected to Groq (Ollama interface active).", flush=True)
-            return True
+    if not api_key:
+        print("Error: GROQ_API_KEY not found in environment variables.", flush=True)
         return False
+        
+    try:
+        # Initialize client if not already done
+        if not client:
+            client = Groq(api_key=api_key)
+            
+        # Simple test call to verify connection
+        client.models.list()
+        print("Connected to Groq (Ollama interface active).", flush=True)
+        return True
     except Exception as e:
         print(f"Error: Could not connect to backend: {str(e)}", flush=True)
         return False
@@ -46,8 +48,16 @@ def generate_with_ollama(prompt: str, model: str = OLLAMA_MODEL) -> str:
     """
     Generate a response using Groq (mimicking Ollama function).
     """
+    global client
+    api_key = os.getenv("GROQ_API_KEY")
+    
     if not client:
-        return "Error: Groq client not initialized. Check your API key."
+        if not api_key:
+            return "Error: Groq API key not found in environment variables."
+        try:
+            client = Groq(api_key=api_key)
+        except Exception as e:
+            return f"Error initializing Groq client: {str(e)}"
         
     try:
         completion = client.chat.completions.create(
