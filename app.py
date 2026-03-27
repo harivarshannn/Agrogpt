@@ -191,14 +191,11 @@ def main():
     check_backend_status()
     
     # Start Flask app
-    print("Starting web server...", flush=True)
-    print("Open your browser and go to: http://localhost:5000", flush=True)
+    port = int(os.environ.get("PORT", 7860))
+    print(f"Starting web server...", flush=True)
+    print(f"Open your browser and go to: http://0.0.0.0:{port}", flush=True)
     
-    # Open browser automatically
-    import webbrowser
-    webbrowser.open('http://localhost:5000')
-    
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False)
 
 if __name__ == "__main__":
     os.environ.setdefault("PYTHONUNBUFFERED", "1")
