@@ -27,8 +27,16 @@ def check_ollama_connection() -> bool:
     global client
     api_key = os.getenv("GROQ_API_KEY")
     
+    # Hugging Face Docker Spaces secure secret mounting mechanism
+    if not api_key and os.path.exists("/run/secrets/GROQ_API_KEY"):
+        try:
+            with open("/run/secrets/GROQ_API_KEY", "r") as f:
+                api_key = f.read().strip()
+        except:
+            pass
+            
     if not api_key:
-        print("Error: GROQ_API_KEY not found in environment variables.", flush=True)
+        print("Error: GROQ_API_KEY not found in environment variables or /run/secrets.", flush=True)
         return False
         
     try:
@@ -51,9 +59,17 @@ def generate_with_ollama(prompt: str, model: str = OLLAMA_MODEL) -> str:
     global client
     api_key = os.getenv("GROQ_API_KEY")
     
+    # Hugging Face Docker Spaces secure secret mounting mechanism
+    if not api_key and os.path.exists("/run/secrets/GROQ_API_KEY"):
+        try:
+            with open("/run/secrets/GROQ_API_KEY", "r") as f:
+                api_key = f.read().strip()
+        except:
+            pass
+            
     if not client:
         if not api_key:
-            return "Error: Groq API key not found in environment variables."
+            return "Error: Groq API key not found in environment variables or /run/secrets."
         try:
             client = Groq(api_key=api_key)
         except Exception as e:
