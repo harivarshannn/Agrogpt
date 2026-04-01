@@ -91,15 +91,10 @@
 <span class="text-xl font-bold tracking-[0.15em] text-emerald-900 uppercase font-['Inter']">AgroGPT</span>
 </div>
 <div class="hidden md:flex items-center gap-10">
-<a class="text-emerald-700 font-semibold border-b-2 border-emerald-700 pb-1 font-['Inter'] tracking-tight" href="#">Dashboard</a>
-<a class="text-emerald-800/60 hover:text-emerald-900 transition-colors font-['Inter'] tracking-tight" href="#">Analytics</a>
-<a class="text-emerald-800/60 hover:text-emerald-900 transition-colors font-['Inter'] tracking-tight" href="#">Predictions</a>
-<a class="text-emerald-800/60 hover:text-emerald-900 transition-colors font-['Inter'] tracking-tight" href="#">Support</a>
+<span class="text-emerald-700 font-semibold border-b-2 border-emerald-700 pb-1 font-['Inter'] tracking-tight">Dashboard</span>
 </div>
 <div class="flex items-center gap-4">
-<button class="p-2.5 hover:bg-emerald-50/50 rounded-full transition-all active:scale-95 duration-200">
-<span class="material-symbols-outlined text-emerald-900" data-icon="notifications">notifications</span>
-</button>
+
 
 <button id="authHeaderBtn" onclick="openAuthModal()" class="p-2.5 hover:bg-emerald-50/50 rounded-full transition-all active:scale-95 duration-200">
 <span class="material-symbols-outlined text-emerald-900 text-3xl" data-icon="account_circle">account_circle</span>
@@ -190,9 +185,18 @@
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-secondary" data-icon="location_on">location_on</span>
 <select class="bg-transparent border-none font-semibold p-0 text-on-surface focus:ring-0 cursor-pointer">
-<option>Central District</option>
-<option>North Highland</option>
-<option>South River Valley</option>
+<option>Chennai</option>
+<option>Coimbatore</option>
+<option>Madurai</option>
+<option>Tiruchirappalli</option>
+<option>Salem</option>
+<option>Tirunelveli</option>
+<option>Tiruppur</option>
+<option>Erode</option>
+<option>Vellore</option>
+<option>Thoothukudi</option>
+<option>Dindigul</option>
+<option>Thanjavur</option>
 </select>
 </div>
 <span class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-widest">Live</span>
@@ -260,24 +264,7 @@
 </aside>
 </div>
 </main>
-<!-- SideNavBar (Hidden on Mobile, simplified for dashboard view) -->
-<div class="fixed left-0 top-1/2 -translate-y-1/2 hidden xl:flex flex-col items-center gap-6 py-10 px-4 bg-white/40 backdrop-blur-md rounded-r-full shadow-lg border border-white/50 z-40">
-<button class="p-4 bg-emerald-100 text-emerald-900 rounded-full shadow-inner"><span class="material-symbols-outlined" data-icon="grid_view">grid_view</span></button>
-<button class="p-4 text-emerald-800/60 hover:text-emerald-900 transition-all"><span class="material-symbols-outlined" data-icon="potted_plant">potted_plant</span></button>
-<button class="p-4 text-emerald-800/60 hover:text-emerald-900 transition-all"><span class="material-symbols-outlined" data-icon="Science">science</span></button>
-<button class="p-4 text-emerald-800/60 hover:text-emerald-900 transition-all"><span class="material-symbols-outlined" data-icon="trending_up">trending_up</span></button>
-<div class="w-8 h-[1px] bg-emerald-900/10 my-2"></div>
-<button class="p-4 text-emerald-800/60 hover:text-emerald-900 transition-all"><span class="material-symbols-outlined" data-icon="settings">settings</span></button>
-</div>
-<!-- Floating AI Prompt (Contextual) -->
-<div class="fixed bottom-8 right-8 z-50">
-<button class="bg-gradient-to-br from-primary to-tertiary p-5 rounded-full text-white shadow-2xl hover:scale-110 active:scale-95 transition-all group relative">
-<span class="material-symbols-outlined text-3xl" data-icon="psychology" data-weight="fill">psychology</span>
-<div class="absolute bottom-full right-0 mb-4 px-4 py-2 bg-inverse-surface text-inverse-on-surface text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                Ask anything about your crops
-            </div>
-</button>
-</div>
+
 
 
 <!-- Modal container overlay for login and register -->
