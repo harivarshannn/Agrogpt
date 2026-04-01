@@ -52,7 +52,9 @@ limiter = Limiter(
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    full_name = db.Column(db.String(120), nullable=False)
+    profession = db.Column(db.String(80), nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
 
 @login_manager.user_loader
@@ -148,36 +150,38 @@ def fetch_weather():
 @limiter.limit("5 per minute")
 def register():
     data = request.get_json()
-    username = data.get('username')
+    email = data.get('email')
+    full_name = data.get('full_name')
+    profession = data.get('profession')
     password = data.get('password')
     
-    if not username or not password:
-        return jsonify({'error': 'Username and password are required'}), 400
+    if not email or not full_name or not profession or not password:
+        return jsonify({'error': 'All fields are required'}), 400
         
-    if User.query.filter_by(username=username).first():
-        return jsonify({'error': 'Username already exists'}), 400
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already exists'}), 400
         
     hashed_password = generate_password_hash(password)
-    new_user = User(username=username, password_hash=hashed_password)
+    new_user = User(email=email, full_name=full_name, profession=profession, password_hash=hashed_password)
     db.session.add(new_user)
     db.session.commit()
     
     login_user(new_user)
-    return jsonify({'success': True, 'username': username})
+    return jsonify({'success': True, 'email': email, 'full_name': full_name})
 
 @app.route('/api/login', methods=['POST'])
 @limiter.limit("10 per minute")
 def login():
     data = request.get_json()
-    username = data.get('username')
+    email = data.get('email')
     password = data.get('password')
     
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(email=email).first()
     if user and check_password_hash(user.password_hash, password):
         login_user(user)
-        return jsonify({'success': True, 'username': username})
+        return jsonify({'success': True, 'email': user.email, 'full_name': user.full_name})
         
-    return jsonify({'error': 'Invalid username or password'}), 401
+    return jsonify({'error': 'Invalid email or password'}), 401
 
 @app.route('/api/logout', methods=['POST'])
 @login_required
@@ -188,7 +192,7 @@ def logout():
 @app.route('/api/user', methods=['GET'])
 def get_current_user():
     if current_user.is_authenticated:
-        return jsonify({'logged_in': True, 'username': current_user.username})
+        return jsonify({'logged_in': True, 'email': current_user.email, 'full_name': current_user.full_name, 'profession': current_user.profession})
     return jsonify({'logged_in': False})
 # ---------------------------------
 

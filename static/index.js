@@ -1,308 +1,29 @@
+
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
-    const questionInput = document.getElementById('questionInput');
-    const askButton = document.getElementById('askButton');
-    const statusDot = document.getElementById('statusDot');
-    const statusText = document.getElementById('statusText');
-    const responseContainer = document.getElementById('responseContainer');
-    const responseText = document.getElementById('responseText');
-    const chatLoading = document.getElementById('chatLoading');
-
-    // Image elements
-    const uploadArea = document.getElementById('uploadArea');
-    const imageInput = document.getElementById('imageInput');
-    const previewContainer = document.getElementById('previewContainer');
-    const previewImg = document.getElementById('previewImg');
-    const analyzeButton = document.getElementById('analyzeButton');
-
-    // Weather elements
-    const districtSelect = document.getElementById('districtSelect');
-    const weatherContent = document.getElementById('weatherContent');
-    const weatherLoading = document.getElementById('weatherLoading');
-    const weatherEmoji = document.getElementById('weatherEmoji');
-    const weatherTemp = document.getElementById('weatherTemp');
-    const weatherDesc = document.getElementById('weatherDesc');
-    const weatherHumidity = document.getElementById('weatherHumidity');
-    const weatherWind = document.getElementById('weatherWind');
-
-    const tnDistricts = [
-        "Ariyalur", "Chengalpattu", "Chennai", "Coimbatore", "Cuddalore",
-        "Dharmapuri", "Dindigul", "Erode", "Kallakurichi", "Kanchipuram",
-        "Kanyakumari", "Karur", "Krishnagiri", "Madurai", "Mayiladuthurai",
-        "Nagapattinam", "Namakkal", "Nilgiris", "Perambalur", "Pudukkottai",
-        "Ramanathapuram", "Ranipet", "Salem", "Sivaganga", "Tenkasi",
-        "Thanjavur", "Theni", "Thoothukudi", "Tiruchirappalli", "Tirunelveli",
-        "Tirupathur", "Tiruppur", "Tiruvallur", "Tiruvannamalai", "Tiruvarur",
-        "Vellore", "Viluppuram", "Virudhunagar"
-    ];
-
-    // Populate districts
-    if (districtSelect) {
-        tnDistricts.forEach(d => {
-            const opt = document.createElement('option');
-            opt.value = d;
-            opt.textContent = d;
-            districtSelect.appendChild(opt);
-        });
-
-        const savedDistrict = localStorage.getItem('agrogpt_district');
-        if (savedDistrict && tnDistricts.includes(savedDistrict)) {
-            districtSelect.value = savedDistrict;
-        }
-    }
-
-    window.fetchWeather = async () => {
-        const district = districtSelect.value;
-        if (!district) {
-            weatherContent.classList.add('hidden');
-            weatherLoading.classList.add('hidden');
-            return;
-        }
-
-        localStorage.setItem('agrogpt_district', district);
-        weatherContent.classList.add('hidden');
-        weatherLoading.classList.remove('hidden');
-
-        try {
-            const res = await fetch(`/api/weather?district=${encodeURIComponent(district)}`);
-            const data = await res.json();
-
-            if (data.success) {
-                weatherEmoji.textContent = data.emoji;
-                weatherTemp.textContent = `${data.temperature}°C`;
-                weatherDesc.textContent = data.condition;
-                weatherHumidity.textContent = `${data.humidity}%`;
-                weatherWind.textContent = `${data.wind_speed} km/h`;
-
-                weatherLoading.classList.add('hidden');
-                weatherContent.classList.remove('hidden');
-            } else {
-                throw new Error(data.error);
-            }
-        } catch (e) {
-            weatherLoading.classList.add('hidden');
-            weatherContent.classList.add('hidden');
-            console.error('Weather fetch error:', e);
-        }
-    };
-
-    if (districtSelect && districtSelect.value) {
-        window.fetchWeather();
-    } else if (weatherLoading) {
-        weatherLoading.classList.add('hidden');
-    }
-
-    let selectedFile = null;
-    let recognition = null;
-    let isRecording = false;
-
-    // --- Localization ---
-    const translations = {
-        en: {
-            title: "AgroGPT",
-            tagline: "Smart Agriculture Intelligence at Your Fingertips",
-            ask_title: "💬 Ask Agriculture Assistant",
-            placeholder: "How can I help you today? Ask about crops, soil, pests...",
-            btn_ask: "Ask AgroGPT",
-            loading: "🌱 Assistant is thinking...",
-            response_header: "✨ Assistant's Answer",
-            scanner_title: "🔍 Plant Disease Scanner",
-            scanner_desc: "Upload a photo of your plant leaves to identify diseases and get organic/chemical treatment advice.",
-            upload_text: "Click to Take a Photo or Upload",
-            upload_hint: "Supports JPG, PNG (Max 16MB)",
-            btn_analyze: "✨ Analyze Disease",
-            btn_clear: "🗑️ Clear",
-            try_asking: "💡 Try Asking...",
-            ex_ginger: "Organic Ginger",
-            ex_pests: "Tomato Pests",
-            ex_paddy: "Paddy Nutrition",
-            ex_soil: "Soil Health",
-            ex_crops: "Seasonal Crops",
-            pro_tips: "🌟 Pro Tips",
-            tip_photos_title: "Clear Photos:",
-            tip_photos_desc: "Capture the top and bottom of affected leaves for better detection.",
-            tip_voice_title: "Voice Commands:",
-            tip_voice_desc: "Click ML or EN and ask your question loudly for better results.",
-            status_connecting: "Connecting...",
-            status_ready: "AgroGPT Ready",
-            status_offline: "Offline",
-            alert_question: "Please enter a question!",
-            alert_image: "Please upload an image.",
-            fail_conn: "Connection failed. Please check your network.",
-            fail_analyze: "Image analysis failed. Check server."
-        },
-        ta: {
-            title: "அக்ரோ ஜிபிடி",
-            tagline: "உங்கள் விரல் நுனியில் சிறந்த விவசாய அறிவு",
-            ask_title: "💬 விவசாய உதவியாளரிடம் கேளுங்கள்",
-            placeholder: "இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்? பயிர்கள், மண், பூச்சிகள் பற்றி கேளுங்கள்...",
-            btn_ask: "அக்ரோ ஜிபிடியிடம் கேளுங்கள்",
-            loading: "🌱 உதவியாளர் யோசிக்கிறார்...",
-            response_header: "✨ உதவியாளரின் பதில்",
-            scanner_title: "🔍 தாவர நோய் ஸ்கேனர்",
-            scanner_desc: "நோய்களைக் கண்டறிந்து இயற்கை/வேதியியல் சிகிச்சை ஆலோசனைகளைப் பெற உங்கள் தாவர இலைகளின் புகைப்படத்தைப் பதிவேற்றவும்.",
-            upload_text: "புகைப்படம் எடுக்க அல்லது பதிவேற்ற கிளிக் செய்யவும்",
-            upload_hint: "JPG, PNG ஆதரவு (அதிகபட்சம் 16MB)",
-            btn_analyze: "✨ நோயை ஆய்வு செய்",
-            btn_clear: "🗑️ அழி",
-            try_asking: "💡 முயற்சி செய்து பாருங்கள்...",
-            ex_ginger: "இயற்கை இஞ்சி",
-            ex_pests: "தக்காளி பூச்சிகள்",
-            ex_paddy: "நெல் ஊட்டச்சத்து",
-            ex_soil: "மண் ஆரோக்கியம்",
-            ex_crops: "பருவகால பயிர்கள்",
-            pro_tips: "🌟 ப்ரோ டிப்ஸ்",
-            tip_photos_title: "தெளிவான புகைப்படங்கள்:",
-            tip_photos_desc: "சிறந்த கண்டறிதலுக்கு பாதிக்கப்பட்ட இலைகளின் மேல் மற்றும் கீழ் பகுதியைப் படம் பிடிக்கவும்.",
-            tip_voice_title: "குரல் கட்டளைகள்:",
-            tip_voice_desc: "ML அல்லது EN ஐக் கிளிக் செய்து, சிறந்த முடிவுகளுக்கு உங்கள் கேள்வியைச் சத்தமாகக் கேளுங்கள்.",
-            status_connecting: "இணைக்கிறது...",
-            status_ready: "அக்ரோ ஜிபிடி தயார்",
-            status_offline: "ஆஃப்லைன்",
-            alert_question: "தயவுசெய்து ஒரு கேள்வியை உள்ளிடவும்!",
-            alert_image: "தயவுசெய்து ஒரு படத்தைப் பதிவேற்றவும்.",
-            fail_conn: "இணைப்பு தோல்வியடைந்தது. உங்கள் பிணையத்தைச் சரிபார்க்கவும்.",
-            fail_analyze: "படத்தை ஆய்வு செய்வதில் தோல்வி. சர்வரைச் சரிபார்க்கவும்."
-        }
-    };
-
-    let currentLang = 'en';
-
-    window.changeLanguage = (lang) => {
-        currentLang = lang;
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (translations[lang][key]) {
-                el.innerText = translations[lang][key];
-            }
-        });
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-            const key = el.getAttribute('data-i18n-placeholder');
-            if (translations[lang][key]) {
-                el.placeholder = translations[lang][key];
-            }
-        });
-
-        // Update document lang
-        document.documentElement.lang = lang;
-
-        // Update status text
-        checkStatus();
-    };
-
-    // --- Status Check ---
-    async function checkStatus() {
-        try {
-            const res = await fetch('/api/status');
-            const data = await res.json();
-            if (data.model_loaded) {
-                statusDot.className = 'status-dot online';
-                statusText.textContent = translations[currentLang].status_ready;
-            } else {
-                statusDot.className = 'status-dot loading';
-                statusText.textContent = data.loading_progress || translations[currentLang].status_connecting;
-                setTimeout(checkStatus, 2000);
-            }
-        } catch (e) {
-            statusDot.className = 'status-dot';
-            statusText.textContent = translations[currentLang].status_offline;
-            setTimeout(checkStatus, 5000);
-        }
-    }
-    checkStatus();
-
-    // --- Auth Logic ---
-    let isLoggedIn = false;
-    let currentUser = null;
-    let isLoginMode = true;
-
-    const authModal = document.getElementById('authModal');
-    const authHeaderBtn = document.getElementById('authHeaderBtn');
-    const logoutHeaderBtn = document.getElementById('logoutHeaderBtn');
-    
-    const authTitle = document.getElementById('authTitle');
-    const authSubtitle = document.getElementById('authSubtitle');
-    const authUsername = document.getElementById('authUsername');
-    const authPassword = document.getElementById('authPassword');
-    const authSubmitBtn = document.getElementById('authSubmitBtn');
-    const authToggleText = document.getElementById('authToggleText');
-    const authToggleLink = document.getElementById('authToggleLink');
-    const authError = document.getElementById('authError');
-
+    // Auth Modal Logic
     window.openAuthModal = () => {
-        if(authError) authError.classList.add('hidden');
-        if(authUsername) authUsername.value = '';
-        if(authPassword) authPassword.value = '';
-        if(authModal) authModal.classList.remove('hidden');
+        document.getElementById('authModalOverlay').style.display = 'flex';
+        toggleAuthView('login');
     };
 
     window.closeAuthModal = () => {
-        if(authModal) authModal.classList.add('hidden');
+        document.getElementById('authModalOverlay').style.display = 'none';
+        document.getElementById('authLoginView').style.display = 'none';
+        document.getElementById('authRegisterView').style.display = 'none';
     };
-    
-    window.toggleAuthMode = () => {
-        isLoginMode = !isLoginMode;
-        authError.classList.add('hidden');
-        if (isLoginMode) {
-            authTitle.innerText = "Log In to AgroGPT";
-            authSubtitle.innerText = "Unlock the Disease Vision Scanner.";
-            authSubmitBtn.innerText = "Log In";
-            authToggleText.innerText = "Don't have an account?";
-            authToggleLink.innerText = "Sign Up";
+
+    window.toggleAuthView = (view) => {
+        if (view === 'login') {
+            document.getElementById('authLoginView').style.display = 'block';
+            document.getElementById('authRegisterView').style.display = 'none';
         } else {
-            authTitle.innerText = "Create Account";
-            authSubtitle.innerText = "Join the future of farming.";
-            authSubmitBtn.innerText = "Sign Up";
-            authToggleText.innerText = "Already have an account?";
-            authToggleLink.innerText = "Log In";
+            document.getElementById('authLoginView').style.display = 'none';
+            document.getElementById('authRegisterView').style.display = 'block';
         }
     };
 
-    window.submitAuth = async () => {
-        const username = authUsername.value.trim();
-        const password = authPassword.value.trim();
-        
-        if (!username || !password) {
-            authError.innerText = "Username and password are required.";
-            authError.classList.remove('hidden');
-            return;
-        }
-        
-        authSubmitBtn.disabled = true;
-        authSubmitBtn.innerText = "Processing...";
-        
-        const endpoint = isLoginMode ? '/api/login' : '/api/register';
-        
-        try {
-            const res = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await res.json();
-            
-            if (res.ok) {
-                closeAuthModal();
-                checkAuthStatus();
-            } else {
-                authError.innerText = data.error || "Authentication failed.";
-                authError.classList.remove('hidden');
-            }
-        } catch (e) {
-            authError.innerText = "Connection error. Please try again.";
-            authError.classList.remove('hidden');
-        } finally {
-            authSubmitBtn.disabled = false;
-            authSubmitBtn.innerText = isLoginMode ? "Log In" : "Sign Up";
-        }
-    };
-
-    window.logoutUser = async () => {
-        try {
-            await fetch('/api/logout', { method: 'POST' });
-            checkAuthStatus();
-        } catch (e) { console.error('Logout error', e); }
-    };
+    let isLoggedIn = false;
+    let currentUser = null;
 
     async function checkAuthStatus() {
         try {
@@ -310,101 +31,157 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             
             isLoggedIn = data.logged_in;
-            currentUser = data.username;
+            currentUser = data;
             
+            const btn = document.getElementById('authHeaderBtn');
+            const outBtn = document.getElementById('logoutHeaderBtn');
             if (isLoggedIn) {
-                authHeaderBtn.classList.add('hidden');
-                logoutHeaderBtn.classList.remove('hidden');
+                if(btn) btn.classList.add('hidden');
+                if(outBtn) outBtn.classList.remove('hidden');
+                outBtn.title = "Logout " + data.full_name;
             } else {
-                authHeaderBtn.classList.remove('hidden');
-                logoutHeaderBtn.classList.add('hidden');
+                if(btn) btn.classList.remove('hidden');
+                if(outBtn) outBtn.classList.add('hidden');
             }
-        } catch (e) {
-            console.error('Auth check error', e);
-        }
+        } catch (e) { console.error(e); }
     }
-    
     checkAuthStatus();
 
-    // --- Chat Logic ---
-    window.askQuestion = async () => {
-        const question = questionInput.value.trim();
-        if (!question) return alert(translations[currentLang].alert_question);
+    window.submitLogin = async () => {
+        const email = document.getElementById('authLoginEmail').value;
+        const password = document.getElementById('authLoginPassword').value;
+        const btn = document.getElementById('authLoginBtn');
+        
+        if(!email || !password) return alert('Email and password required');
+        
+        btn.innerHTML = 'Logging in...';
+        btn.disabled = true;
+        
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                closeAuthModal();
+                checkAuthStatus();
+            } else {
+                alert(data.error);
+            }
+        } catch (e) {
+            alert('Connection failed');
+        } finally {
+            btn.innerHTML = 'Login';
+            btn.disabled = false;
+        }
+    };
 
-        setChatState(true);
+    window.submitRegister = async () => {
+        const full_name = document.getElementById('authRegName').value;
+        const profession = document.getElementById('authRegProfession').value;
+        const email = document.getElementById('authRegEmail').value;
+        const password = document.getElementById('authRegPassword').value;
+        const btn = document.getElementById('authRegBtn');
+        
+        if(!email || !password || !full_name || !profession) return alert('All fields required');
+        
+        btn.innerHTML = 'Creating...';
+        btn.disabled = true;
+        
+        try {
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, full_name, profession })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                closeAuthModal();
+                checkAuthStatus();
+            } else {
+                alert(data.error);
+            }
+        } catch (e) {
+            alert('Connection failed');
+        } finally {
+            btn.innerHTML = 'Create Account';
+            btn.disabled = false;
+        }
+    };
+
+    window.logoutUser = async () => {
+        try {
+            await fetch('/api/logout', { method: 'POST' });
+            checkAuthStatus();
+        } catch (e) { console.error(e); }
+    };
+
+    // Chat Logic
+    window.askQuestion = async () => {
+        const qInput = document.getElementById('questionInput');
+        const question = qInput ? qInput.value.trim() : "";
+        if (!question) return alert("Please enter a question.");
+        
+        const btn = document.getElementById('askButton');
+        btn.innerHTML = 'Thinking...';
+        btn.disabled = true;
+        
         try {
             const res = await fetch('/api/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    question: question,
-                    district: districtSelect ? districtSelect.value : ''
-                })
+                body: JSON.stringify({ question: question, district: '' })
             });
             const data = await res.json();
             showResponse(data.answer, !res.ok);
         } catch (e) {
-            showResponse(translations[currentLang].fail_conn, true);
+            showResponse("Connection failed. Please check server.", true);
         } finally {
-            setChatState(false);
+            btn.innerHTML = 'Ask AgroGPT';
+            btn.disabled = false;
         }
     };
 
-    function setChatState(isLoading) {
-        askButton.disabled = isLoading;
-        chatLoading.classList.toggle('hidden', !isLoading);
-        if (isLoading) {
-            askButton.innerHTML = `<div class="loading-spinner"></div> ${currentLang === 'ta' ? 'யோசிக்கிறது...' : 'Thinking...'}`;
-            responseContainer.classList.remove('show');
-        } else {
-            askButton.innerHTML = translations[currentLang].btn_ask;
-        }
+    function showResponse(text, isError) {
+        const rc = document.getElementById('responseContainer');
+        const rt = document.getElementById('responseText');
+        if(!rc || !rt) return;
+        rc.style.display = 'block';
+        rt.innerText = text;
+        if(isError) rc.style.borderLeftColor = 'red';
+        else rc.style.borderLeftColor = '#006e2f';
     }
 
-    function showResponse(text, isError = false) {
-        responseText.textContent = text;
-        responseContainer.classList.add('show');
-        responseContainer.style.borderColor = isError ? 'var(--error)' : 'var(--primary)';
-        responseContainer.scrollIntoView({ behavior: 'smooth' });
+    // Vision Logic
+    let selectedFile = null;
+    const uploadArea = document.getElementById('uploadArea');
+    const imageInput = document.getElementById('imageInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImg = document.getElementById('previewImg');
+    
+    if(uploadArea && imageInput) {
+        uploadArea.onclick = () => {
+            if (!isLoggedIn) return openAuthModal();
+            imageInput.click();
+        };
+
+        imageInput.onchange = (e) => {
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        };
+
+        uploadArea.ondragover = (e) => { e.preventDefault(); };
+        uploadArea.ondrop = (e) => {
+            e.preventDefault();
+            if (!isLoggedIn) return openAuthModal();
+            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+        };
     }
-
-    window.setQuestion = (q) => {
-        questionInput.value = q;
-        questionInput.focus();
-    };
-
-    // --- Vision Logic ---
-    uploadArea.onclick = () => {
-        if (!isLoggedIn) {
-            openAuthModal();
-            return;
-        }
-        imageInput.click();
-    };
-
-    imageInput.onchange = (e) => {
-        if (e.target.files.length > 0) handleFile(e.target.files[0]);
-    };
-
-    uploadArea.ondragover = (e) => { 
-        if(!isLoggedIn) return;
-        e.preventDefault(); 
-        uploadArea.style.borderColor = 'var(--primary)'; 
-    };
-    uploadArea.ondragleave = () => { uploadArea.style.borderColor = ''; };
-    uploadArea.ondrop = (e) => {
-        e.preventDefault();
-        if (!isLoggedIn) {
-            openAuthModal();
-            return;
-        }
-        if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
-    };
 
     function handleFile(file) {
-        if (!file.type.startsWith('image/')) return alert(translations[currentLang].alert_image);
+        if (!file.type.startsWith('image/')) return alert('Please upload an image.');
         selectedFile = file;
-
         const reader = new FileReader();
         reader.onload = (e) => {
             previewImg.src = e.target.result;
@@ -413,18 +190,20 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         reader.readAsDataURL(file);
     }
-
+    
     window.removeImage = () => {
         selectedFile = null;
-        previewContainer.classList.add('hidden');
-        uploadArea.classList.remove('hidden');
-        imageInput.value = '';
+        if(previewContainer) previewContainer.classList.add('hidden');
+        if(uploadArea) uploadArea.classList.remove('hidden');
+        if(imageInput) imageInput.value = '';
     };
 
     window.analyzeImage = async () => {
         if (!selectedFile) return;
+        const btn = document.getElementById('analyzeButton');
+        btn.innerHTML = 'Analyzing...';
+        btn.disabled = true;
 
-        setVisionState(true);
         try {
             const formData = new FormData();
             formData.append('image', selectedFile);
@@ -435,69 +214,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 showResponse(data.analysis);
             } else {
-                showResponse(data.error || translations[currentLang].fail_analyze, true);
+                showResponse(data.error || "Image analysis failed.", true);
             }
         } catch (e) {
-            showResponse(translations[currentLang].fail_analyze, true);
+            showResponse("Connection failed.", true);
         } finally {
-            setVisionState(false);
-        }
-    };
-
-    function setVisionState(isLoading) {
-        analyzeButton.disabled = isLoading;
-        chatLoading.classList.toggle('hidden', !isLoading);
-        if (isLoading) {
-            analyzeButton.innerHTML = `<div class="loading-spinner"></div> ${currentLang === 'ta' ? 'ஆய்வு செய்கிறது...' : 'Analyzing...'}`;
-        } else {
-            analyzeButton.innerHTML = translations[currentLang].btn_analyze;
-        }
-    }
-
-    // --- Voice Logic ---
-    window.toggleSpeech = (btnId, lang) => {
-        const btn = document.getElementById(btnId);
-        if (isRecording) {
-            stopSpeech();
-        } else {
-            startSpeech(btn, lang);
-        }
-    };
-
-    function startSpeech(btn, lang) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) return alert('Speech recognition not supported in this browser.');
-
-        recognition = new SpeechRecognition();
-        recognition.lang = lang;
-        recognition.onstart = () => {
-            isRecording = true;
-            btn.classList.add('active');
-            btn.innerHTML = '🛑 Stop';
-        };
-        recognition.onresult = (e) => {
-            questionInput.value = e.results[0][0].transcript;
-        };
-        recognition.onend = () => {
-            isRecording = false;
-            btn.classList.remove('active');
-            if (btn.id === 'micEN') btn.innerHTML = '🎤 EN';
-            else if (btn.id === 'micML') btn.innerHTML = '🎤 ML';
-            else if (btn.id === 'micTA') btn.innerHTML = '🎤 TA';
-        };
-        recognition.onerror = stopSpeech;
-        recognition.start();
-    }
-
-    function stopSpeech() {
-        if (recognition) recognition.stop();
-    }
-
-    // --- Event Listeners ---
-    questionInput.onkeydown = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            window.askQuestion();
+            btn.innerHTML = 'Analyze';
+            btn.disabled = false;
         }
     };
 });
