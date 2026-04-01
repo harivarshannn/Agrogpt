@@ -31,3 +31,8 @@ python-dotenv>=1.0.0
 # pytest>=6.0.0
 # pytest-cov>=2.12.0
 
+# Authentication, Database, and Rate Limiting
+Flask-Login>=0.6.3
+Flask-SQLAlchemy>=3.1.1
+Flask-Limiter>=3.7.0
+psycopg2-binary>=2.9.9

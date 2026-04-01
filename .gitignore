@@ -80,7 +80,11 @@ target/
 # celery beat schedule file
 celerybeat-schedule
 
-# SageMath parsed files
+# AgroGPT ignored files
+.agents/
+skills-lock.json
+agrogpt.db
+instance/
 *.sage.py
 
 # Environments

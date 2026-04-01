@@ -24,11 +24,13 @@
                 <h1 data-i18n="title">AgroGPT</h1>
             </div>
 
-            <div class="lang-box">
+            <div class="lang-box" style="display: flex; gap: 16px; align-items: center;">
                 <select id="langSelect" onchange="window.changeLanguage(this.value)">
                     <option value="en">English (Global)</option>
                     <option value="ta">தமிழ் (Tamil)</option>
                 </select>
+                <button id="authHeaderBtn" class="btn-pill" style="margin: 0;" onclick="openAuthModal()">Login</button>
+                <button id="logoutHeaderBtn" class="btn-pill hidden" style="margin: 0; color: #EF4444; border-color: rgba(239,68,68,0.2);" onclick="logoutUser()">Logout</button>
             </div>
         </div>
     </header>
@@ -198,6 +200,31 @@
         </div>
 
     </div><!-- /container -->
+
+    <!-- ──────────────── AUTHENTICATION MODAL ──────────────── -->
+    <div id="authModal" class="modal-overlay hidden">
+        <div class="card modal-content" style="max-width: 400px; width: 90%; position: relative;">
+            <button class="modal-close" onclick="closeAuthModal()">✕</button>
+            <h3 id="authTitle" class="card-title" style="justify-content: center; margin-bottom: 8px;">Log In to AgroGPT</h3>
+            <p id="authSubtitle" style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">Unlock the Disease Vision Scanner.</p>
+            
+            <div class="input-wrap" style="padding: 12px 16px; min-height: auto; margin-bottom: 16px;">
+                <input type="text" id="authUsername" placeholder="Username" style="width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: 1rem; color: var(--text-pure);">
+            </div>
+            <div class="input-wrap" style="padding: 12px 16px; min-height: auto; margin-bottom: 24px;">
+                <input type="password" id="authPassword" placeholder="Password" style="width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: 1rem; color: var(--text-pure);">
+            </div>
+            
+            <div id="authError" class="hidden" style="color: #EF4444; font-size: 0.85rem; text-align: center; margin-bottom: 16px; font-weight: 600;"></div>
+            
+            <button id="authSubmitBtn" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 14px;" onclick="submitAuth()">Log In</button>
+            
+            <p style="text-align: center; margin-top: 24px; font-size: 0.9rem; color: var(--text-soft);">
+                <span id="authToggleText">Don't have an account?</span> 
+                <a href="#" onclick="toggleAuthMode(); return false;" id="authToggleLink" style="color: var(--ai-green); font-weight: 700; text-decoration: none;">Sign Up</a>
+            </p>
+        </div>
+    </div>
 
     <script src="static/index.js"></script>
 </body>

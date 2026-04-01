@@ -7,6 +7,11 @@ from flask import Flask, render_template, request, jsonify
 import threading
 import time
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import uuid
 import requests
 
@@ -16,6 +21,45 @@ from weather import get_current_weather, TN_DISTRICTS
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable static file caching
+
+# ----- DATABASE, AUTH & LIMITER SETUP -----
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_agrogpt_secret_key')
+
+database_url = os.environ.get('DATABASE_URL')
+if database_url and database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///agrogpt.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    return jsonify({'error': 'Please log in to use this feature.'}), 401
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["1000 per day", "100 per hour"],
+    storage_uri="memory://"
+)
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User, int(user_id))
+
+with app.app_context():
+    db.create_all()
+# ------------------------------------------
 
 @app.after_request
 def add_no_cache_headers(response):
@@ -97,7 +141,57 @@ def fetch_weather():
     else:
         return jsonify(weather_data), 500
 
+# ----- AUTHENTICATION ROUTES -----
+@app.route('/api/register', methods=['POST'])
+@limiter.limit("5 per minute")
+def register():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
+        
+    if User.query.filter_by(username=username).first():
+        return jsonify({'error': 'Username already exists'}), 400
+        
+    hashed_password = generate_password_hash(password)
+    new_user = User(username=username, password_hash=hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
+    
+    login_user(new_user)
+    return jsonify({'success': True, 'username': username})
+
+@app.route('/api/login', methods=['POST'])
+@limiter.limit("10 per minute")
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    
+    user = User.query.filter_by(username=username).first()
+    if user and check_password_hash(user.password_hash, password):
+        login_user(user)
+        return jsonify({'success': True, 'username': username})
+        
+    return jsonify({'error': 'Invalid username or password'}), 401
+
+@app.route('/api/logout', methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({'success': True})
+
+@app.route('/api/user', methods=['GET'])
+def get_current_user():
+    if current_user.is_authenticated:
+        return jsonify({'logged_in': True, 'username': current_user.username})
+    return jsonify({'logged_in': False})
+# ---------------------------------
+
 @app.route('/api/ask', methods=['POST'])
+@limiter.limit("10 per minute")
 def ask_question():
     """Handle user questions"""
     if not ollama_connected:
@@ -143,6 +237,8 @@ def ask_question():
         return jsonify({'error': f'Error generating response: {str(e)}'}), 500
 
 @app.route('/api/upload', methods=['POST'])
+@login_required
+@limiter.limit("10 per minute")
 def upload_image():
     """Handle image uploads for disease detection"""
     if 'image' not in request.files:

@@ -211,6 +211,121 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     checkStatus();
 
+    // --- Auth Logic ---
+    let isLoggedIn = false;
+    let currentUser = null;
+    let isLoginMode = true;
+
+    const authModal = document.getElementById('authModal');
+    const authHeaderBtn = document.getElementById('authHeaderBtn');
+    const logoutHeaderBtn = document.getElementById('logoutHeaderBtn');
+    
+    const authTitle = document.getElementById('authTitle');
+    const authSubtitle = document.getElementById('authSubtitle');
+    const authUsername = document.getElementById('authUsername');
+    const authPassword = document.getElementById('authPassword');
+    const authSubmitBtn = document.getElementById('authSubmitBtn');
+    const authToggleText = document.getElementById('authToggleText');
+    const authToggleLink = document.getElementById('authToggleLink');
+    const authError = document.getElementById('authError');
+
+    window.openAuthModal = () => {
+        if(authError) authError.classList.add('hidden');
+        if(authUsername) authUsername.value = '';
+        if(authPassword) authPassword.value = '';
+        if(authModal) authModal.classList.remove('hidden');
+    };
+
+    window.closeAuthModal = () => {
+        if(authModal) authModal.classList.add('hidden');
+    };
+    
+    window.toggleAuthMode = () => {
+        isLoginMode = !isLoginMode;
+        authError.classList.add('hidden');
+        if (isLoginMode) {
+            authTitle.innerText = "Log In to AgroGPT";
+            authSubtitle.innerText = "Unlock the Disease Vision Scanner.";
+            authSubmitBtn.innerText = "Log In";
+            authToggleText.innerText = "Don't have an account?";
+            authToggleLink.innerText = "Sign Up";
+        } else {
+            authTitle.innerText = "Create Account";
+            authSubtitle.innerText = "Join the future of farming.";
+            authSubmitBtn.innerText = "Sign Up";
+            authToggleText.innerText = "Already have an account?";
+            authToggleLink.innerText = "Log In";
+        }
+    };
+
+    window.submitAuth = async () => {
+        const username = authUsername.value.trim();
+        const password = authPassword.value.trim();
+        
+        if (!username || !password) {
+            authError.innerText = "Username and password are required.";
+            authError.classList.remove('hidden');
+            return;
+        }
+        
+        authSubmitBtn.disabled = true;
+        authSubmitBtn.innerText = "Processing...";
+        
+        const endpoint = isLoginMode ? '/api/login' : '/api/register';
+        
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+                closeAuthModal();
+                checkAuthStatus();
+            } else {
+                authError.innerText = data.error || "Authentication failed.";
+                authError.classList.remove('hidden');
+            }
+        } catch (e) {
+            authError.innerText = "Connection error. Please try again.";
+            authError.classList.remove('hidden');
+        } finally {
+            authSubmitBtn.disabled = false;
+            authSubmitBtn.innerText = isLoginMode ? "Log In" : "Sign Up";
+        }
+    };
+
+    window.logoutUser = async () => {
+        try {
+            await fetch('/api/logout', { method: 'POST' });
+            checkAuthStatus();
+        } catch (e) { console.error('Logout error', e); }
+    };
+
+    async function checkAuthStatus() {
+        try {
+            const res = await fetch('/api/user');
+            const data = await res.json();
+            
+            isLoggedIn = data.logged_in;
+            currentUser = data.username;
+            
+            if (isLoggedIn) {
+                authHeaderBtn.classList.add('hidden');
+                logoutHeaderBtn.classList.remove('hidden');
+            } else {
+                authHeaderBtn.classList.remove('hidden');
+                logoutHeaderBtn.classList.add('hidden');
+            }
+        } catch (e) {
+            console.error('Auth check error', e);
+        }
+    }
+    
+    checkAuthStatus();
+
     // --- Chat Logic ---
     window.askQuestion = async () => {
         const question = questionInput.value.trim();
@@ -259,16 +374,30 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Vision Logic ---
-    uploadArea.onclick = () => imageInput.click();
+    uploadArea.onclick = () => {
+        if (!isLoggedIn) {
+            openAuthModal();
+            return;
+        }
+        imageInput.click();
+    };
 
     imageInput.onchange = (e) => {
         if (e.target.files.length > 0) handleFile(e.target.files[0]);
     };
 
-    uploadArea.ondragover = (e) => { e.preventDefault(); uploadArea.style.borderColor = 'var(--primary)'; };
+    uploadArea.ondragover = (e) => { 
+        if(!isLoggedIn) return;
+        e.preventDefault(); 
+        uploadArea.style.borderColor = 'var(--primary)'; 
+    };
     uploadArea.ondragleave = () => { uploadArea.style.borderColor = ''; };
     uploadArea.ondrop = (e) => {
         e.preventDefault();
+        if (!isLoggedIn) {
+            openAuthModal();
+            return;
+        }
         if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
     };
 
