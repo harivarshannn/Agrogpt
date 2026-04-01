@@ -132,15 +132,9 @@
 </div>
 <div class="flex items-center justify-between">
 <div class="flex gap-3">
-<button class="flex items-center gap-2 px-5 py-2.5 glass-card ghost-edge rounded-full text-sm font-medium hover:bg-white transition-all shadow-sm">
-<span class="material-symbols-outlined text-xs" data-icon="translate">translate</span> ML
-                                </button>
-<button class="flex items-center gap-2 px-5 py-2.5 glass-card ghost-edge rounded-full text-sm font-medium hover:bg-white transition-all shadow-sm">
-<span class="material-symbols-outlined text-xs" data-icon="mic">mic</span> TA
-                                </button>
-<button class="flex items-center gap-2 px-5 py-2.5 glass-card ghost-edge rounded-full text-sm font-medium hover:bg-white transition-all shadow-sm">
-<span class="material-symbols-outlined text-xs" data-icon="language">language</span> EN
-                                </button>
+<button id="voiceMicBtn" onclick="startVoiceInput()" class="flex items-center gap-2 px-5 py-2.5 glass-card ghost-edge rounded-full text-sm font-medium hover:bg-white transition-all shadow-sm" title="Speak your question">
+<span class="material-symbols-outlined text-xs" data-icon="mic">mic</span> Speak
+</button>
 </div>
 <button id="askButton" onclick="askQuestion()" class="bg-primary-container text-on-primary-container px-8 py-4 rounded-full font-bold flex items-center gap-3 shadow-lg shadow-primary/10 hover:-translate-y-1 active:scale-95 transition-all">
                                 Ask AgroGPT
@@ -184,43 +178,69 @@
 <div class="flex items-center justify-between mb-8">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-secondary" data-icon="location_on">location_on</span>
-<select class="bg-transparent border-none font-semibold p-0 text-on-surface focus:ring-0 cursor-pointer">
-<option>Chennai</option>
-<option>Coimbatore</option>
-<option>Madurai</option>
-<option>Tiruchirappalli</option>
-<option>Salem</option>
-<option>Tirunelveli</option>
-<option>Tiruppur</option>
-<option>Erode</option>
-<option>Vellore</option>
-<option>Thoothukudi</option>
-<option>Dindigul</option>
-<option>Thanjavur</option>
+<select id="districtSelect" onchange="loadWeather()" class="bg-transparent border-none font-semibold p-0 text-on-surface focus:ring-0 cursor-pointer">
+<option value="Ariyalur">Ariyalur</option>
+<option value="Chengalpattu">Chengalpattu</option>
+<option value="Chennai" selected>Chennai</option>
+<option value="Coimbatore">Coimbatore</option>
+<option value="Cuddalore">Cuddalore</option>
+<option value="Dharmapuri">Dharmapuri</option>
+<option value="Dindigul">Dindigul</option>
+<option value="Erode">Erode</option>
+<option value="Kallakurichi">Kallakurichi</option>
+<option value="Kanchipuram">Kanchipuram</option>
+<option value="Kanyakumari">Kanyakumari</option>
+<option value="Karur">Karur</option>
+<option value="Krishnagiri">Krishnagiri</option>
+<option value="Madurai">Madurai</option>
+<option value="Mayiladuthurai">Mayiladuthurai</option>
+<option value="Nagapattinam">Nagapattinam</option>
+<option value="Namakkal">Namakkal</option>
+<option value="Nilgiris">Nilgiris</option>
+<option value="Perambalur">Perambalur</option>
+<option value="Pudukkottai">Pudukkottai</option>
+<option value="Ramanathapuram">Ramanathapuram</option>
+<option value="Ranipet">Ranipet</option>
+<option value="Salem">Salem</option>
+<option value="Sivaganga">Sivaganga</option>
+<option value="Tenkasi">Tenkasi</option>
+<option value="Thanjavur">Thanjavur</option>
+<option value="Theni">Theni</option>
+<option value="Thoothukudi">Thoothukudi</option>
+<option value="Tiruchirappalli">Tiruchirappalli</option>
+<option value="Tirunelveli">Tirunelveli</option>
+<option value="Tirupathur">Tirupathur</option>
+<option value="Tiruppur">Tiruppur</option>
+<option value="Tiruvallur">Tiruvallur</option>
+<option value="Tiruvannamalai">Tiruvannamalai</option>
+<option value="Tiruvarur">Tiruvarur</option>
+<option value="Vellore">Vellore</option>
+<option value="Viluppuram">Viluppuram</option>
+<option value="Virudhunagar">Virudhunagar</option>
 </select>
 </div>
 <span class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-widest">Live</span>
 </div>
 <div class="flex items-center justify-between mb-10">
 <div class="flex flex-col">
-<span class="text-6xl font-light tracking-tighter text-on-surface">28<span class="text-3xl align-top">°C</span></span>
-<span class="text-on-surface-variant font-medium mt-1">Partly Cloudy</span>
+<span class="text-6xl font-light tracking-tighter text-on-surface"><span id="weatherTemp">--</span><span class="text-3xl align-top">°C</span></span>
+<span id="weatherCondition" class="text-on-surface-variant font-medium mt-1">Loading...</span>
 </div>
-<span class="material-symbols-outlined text-[5rem] text-secondary/30" data-icon="sunny" data-weight="fill">sunny</span>
+<span id="weatherEmoji" class="text-[5rem]">🌤️</span>
 </div>
 <div class="grid grid-cols-2 gap-4">
 <div class="bg-white/40 rounded-2xl p-4 flex items-center gap-3">
 <span class="material-symbols-outlined text-on-surface-variant" data-icon="humidity_percentage">humidity_percentage</span>
 <div>
 <p class="text-[0.6rem] uppercase tracking-wider text-on-surface-variant/60">Humidity</p>
-<p class="font-bold text-on-surface">64%</p>
+<p class="font-bold text-on-surface" id="weatherHumidity">--%</p>
 </div>
 </div>
 <div class="bg-white/40 rounded-2xl p-4 flex items-center gap-3">
 <span class="material-symbols-outlined text-on-surface-variant" data-icon="air">air</span>
 <div>
 <p class="text-[0.6rem] uppercase tracking-wider text-on-surface-variant/60">Wind</p>
-<p class="font-bold text-on-surface">12 km/h</p>
+<p class="font-bold text-on-surface" id="weatherWind">-- km/h</p>
 </div>
 </div>
 </div>
