@@ -24,6 +24,8 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable static file caching
 
 # ----- DATABASE, AUTH & LIMITER SETUP -----
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_agrogpt_secret_key')
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
 
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith("postgres://"):
