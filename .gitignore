@@ -87,6 +87,9 @@ agrogpt.db
 instance/
 *.sage.py
 
+# GitHub Copilot context file — local only, not pushed to remote
+.github/copilot-instructions.md
+
 # Environments
 .env
 .venv
