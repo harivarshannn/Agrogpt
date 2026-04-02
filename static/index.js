@@ -278,33 +278,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let isListening = false;
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    window.startVoiceInput = () => {
+    window.startVoiceInput = (langCode, btn) => {
         if (!SpeechRecognition) {
             alert('Voice input is not supported in this browser. Please use Chrome or Edge.');
             return;
         }
 
-        const micBtn = document.getElementById('voiceMicBtn');
         const textarea = document.getElementById('questionInput');
 
         if (isListening) {
             if (recognition) recognition.stop();
-            return;
+            // Don't early return if we clicked a DIFFERENT button, stop then start
+            // But simple implementation: just stop.
+            if (btn && btn.classList.contains('ring-2')) return; 
         }
 
         recognition = new SpeechRecognition();
-        // Dynamic language based on UI culture
-        const langCodes = { en: 'en-US', ta: 'ta-IN', ml: 'ml-IN' };
-        recognition.lang = langCodes[currentLang];
+        recognition.lang = langCode;
         recognition.continuous = false;
         recognition.interimResults = true;
         recognition.maxAlternatives = 1;
 
         recognition.onstart = () => {
             isListening = true;
-            if (micBtn) {
-                micBtn.innerHTML = `<span class="material-symbols-outlined text-xs animate-pulse text-red-500">mic</span> ${translations[currentLang].btn_speak}...`;
-                micBtn.classList.add('ring-2', 'ring-red-400');
+            if (btn) {
+                btn.dataset.oldHtml = btn.innerHTML;
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-pulse text-red-500">mic</span> ...`;
+                btn.classList.add('ring-2', 'ring-red-400');
             }
         };
 
@@ -330,9 +330,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         recognition.onend = () => {
             isListening = false;
-            if (micBtn) {
-                micBtn.innerHTML = `<span class="material-symbols-outlined text-xs">mic</span> ${translations[currentLang].btn_speak}`;
-                micBtn.classList.remove('ring-2', 'ring-red-400');
+            if (btn) {
+                btn.innerHTML = btn.dataset.oldHtml;
+                btn.classList.remove('ring-2', 'ring-red-400');
             }
         };
         recognition.start();

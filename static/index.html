@@ -137,9 +137,17 @@
 </div>
 <div class="flex items-center justify-between">
 <div class="flex gap-3">
-<button id="voiceMicBtn" onclick="startVoiceInput()" class="flex items-center gap-2 px-5 py-2.5 glass-card ghost-edge rounded-full text-sm font-medium hover:bg-white transition-all shadow-sm" title="Speak your question">
-<span class="material-symbols-outlined text-xs" data-icon="mic">mic</span> <span data-i18n="btn_speak">Speak</span>
-</button>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <button onclick="startVoiceInput('en-US', this)" class="flex items-center gap-1.5 px-4 py-2 glass-card ghost-edge rounded-full text-xs font-semibold hover:bg-white transition-all shadow-sm" title="Speak in English">
+                                        <span class="material-symbols-outlined text-sm">mic</span> EN
+                                    </button>
+                                    <button onclick="startVoiceInput('ta-IN', this)" class="flex items-center gap-1.5 px-4 py-2 glass-card ghost-edge rounded-full text-xs font-semibold hover:bg-white transition-all shadow-sm" title="Speak in Tamil">
+                                        <span class="material-symbols-outlined text-sm">mic</span> TA
+                                    </button>
+                                    <button onclick="startVoiceInput('ml-IN', this)" class="flex items-center gap-1.5 px-4 py-2 glass-card ghost-edge rounded-full text-xs font-semibold hover:bg-white transition-all shadow-sm" title="Speak in Malayalam">
+                                        <span class="material-symbols-outlined text-sm">mic</span> ML
+                                    </button>
+                                </div>
 </div>
 <button id="askButton" onclick="askQuestion()" class="bg-primary-container text-on-primary-container px-8 py-4 rounded-full font-bold flex items-center gap-3 shadow-lg shadow-primary/10 hover:-translate-y-1 active:scale-95 transition-all">
                                 <span data-i18n="btn_ask">Ask AgroGPT</span>
