@@ -70,6 +70,39 @@ document.addEventListener('DOMContentLoaded', () => {
             tip_2_desc: "துல்லியத்திற்காக ஒவ்வொரு 90 நாட்களுக்கும் உங்கள் மண் வரைபடங்களை புதுப்பிக்கவும்.",
             tip_3_title: "பயிர் சுழற்சி",
             tip_3_desc: "பருப்பு வகைகளை தானியங்களுடன் சுழற்றுவது இயற்கையாகவே நைட்ரஜனை நிரப்புகிறது."
+        },
+        ml: {
+            nav_dashboard: "ഡാഷ്‌ബോർഡ്",
+            hero_title_1: "സ്മാർട്ട് അഗ്രിക്കൾച്ചർ ഇന്റലിജൻസ്",
+            hero_title_2: "നിങ്ങളുടെ",
+            hero_title_3: "വിരൽത്തുമ്പിൽ",
+            hero_subtitle: "തത്സമയ ഡാറ്റ, AI അടിസ്ഥാനമാക്കിയുള്ള വിള ആരോഗ്യ വിശകലനം എന്നിവയിലൂടെ കർഷകരെ ശാക്തീകരിക്കുന്നു.",
+            card_ask_title: "വിவசாய അസിസ്റ്റന്റിനോട് ചോദിക്കുക",
+            placeholder_question: "എ.കാ. 'ജൈവ തക്കാളി കൃഷിക്ക് അനുയോജ്യമായ മണ്ണ് pH എത്രയാണ്?'",
+            btn_speak: "സംസാരിക്കുക",
+            btn_ask: "AgroGPT-യോട് ചോദിക്കുക",
+            response_header: "✨ AgroGPT മറുപടി",
+            btn_analyze: "പരിശോധിക്കുക",
+            btn_clear: "ഒഴിവാക്കുക",
+            card_scanner_title: "സസ്യരോഗ സ്കാനർ",
+            upload_text: "സസ്യത്തിന്റെ ഇലയുടെ ചിത്രം അപ്‌ലോഡ് ചെയ്യുക",
+            upload_subtext: "JPG, PNG പിന്തുണയ്ക്കുന്നു, 10MB വരെ",
+            weather_live: "തത്സമയം",
+            weather_loading: "ശേഖരിക്കുന്നു...",
+            weather_humidity: "ഈർപ്പം",
+            weather_wind: "കാറ്റ്",
+            card_try_title: "ഇവ ചോദിക്കാവുന്നതാണ്",
+            try_pest: "കാപ്പിയിലെ കീടനിയന്ത്രണം",
+            try_market: "വിളകളുടെ വിപണി വില",
+            try_fertilizer: "ജൈവ വളങ്ങൾ",
+            try_drought: "വരൾച്ചാ പ്രതിരോധം",
+            card_tips_title: "നിർദ്ദേശങ്ങൾ",
+            tip_1_title: "ശരിയായ വിതയ്ക്കൽ",
+            tip_1_desc: "അതിരാവിലെ വിതയ്ക്കുന്നത് 14% ഈർപ്പം നിലനിർത്താൻ സഹായിക്കുന്നു.",
+            tip_2_title: "AI സോയിൽ മാപ്പിംഗ്",
+            tip_2_desc: "കൃത്യതയ്ക്കായി ഓരോ 90 ദിവസത്തിലും സോയിൽ മാപ്പുകൾ പുതുക്കുക.",
+            tip_3_title: "വിള പരിവർത്തനം",
+            tip_3_desc: "ധാന്യങ്ങൾക്കൊപ്പം പയറുവർഗ്ഗങ്ങളും കൃഷി ചെയ്യുന്നത് നൈട്രജൻ അളവ് കൂട്ടുന്നു."
         }
     };
 
@@ -89,12 +122,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const langDisplay = document.getElementById('langDisplay');
         if (langDisplay) {
-            langDisplay.innerText = currentLang === 'en' ? 'தமிழ்' : 'English';
+            const labels = { en: 'தமிழ்', ta: 'മലയാളം', ml: 'English' };
+            langDisplay.innerText = labels[currentLang];
         }
     }
 
     window.toggleLanguage = () => {
-        currentLang = currentLang === 'en' ? 'ta' : 'en';
+        if (currentLang === 'en') currentLang = 'ta';
+        else if (currentLang === 'ta') currentLang = 'ml';
+        else currentLang = 'en';
         updateContent();
     };
 
@@ -232,7 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Load weather immediately for default district, then refresh every 10 minutes
     loadWeather();
     setInterval(loadWeather, 10 * 60 * 1000);
 
@@ -241,7 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // =============================================
     let recognition = null;
     let isListening = false;
-
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     window.startVoiceInput = () => {
@@ -254,14 +288,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const textarea = document.getElementById('questionInput');
 
         if (isListening) {
-            // Stop listening
             if (recognition) recognition.stop();
             return;
         }
 
         recognition = new SpeechRecognition();
-        // Accept any language — multilingual support
-        recognition.lang = '';            // empty = browser picks user's OS language
+        // Dynamic language based on UI culture
+        const langCodes = { en: 'en-US', ta: 'ta-IN', ml: 'ml-IN' };
+        recognition.lang = langCodes[currentLang];
         recognition.continuous = false;
         recognition.interimResults = true;
         recognition.maxAlternatives = 1;
@@ -269,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.onstart = () => {
             isListening = true;
             if (micBtn) {
-                micBtn.innerHTML = '<span class="material-symbols-outlined text-xs animate-pulse text-red-500">mic</span> Listening...';
+                micBtn.innerHTML = `<span class="material-symbols-outlined text-xs animate-pulse text-red-500">mic</span> ${translations[currentLang].btn_speak}...`;
                 micBtn.classList.add('ring-2', 'ring-red-400');
             }
         };
@@ -279,15 +313,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let finalTranscript = '';
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
-                }
+                if (event.results[i].isFinal) finalTranscript += transcript;
+                else interimTranscript += transcript;
             }
-            if (textarea) {
-                textarea.value = finalTranscript || interimTranscript;
-            }
+            if (textarea) textarea.value = finalTranscript || interimTranscript;
         };
 
         recognition.onerror = (event) => {
@@ -302,11 +331,10 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.onend = () => {
             isListening = false;
             if (micBtn) {
-                micBtn.innerHTML = '<span class="material-symbols-outlined text-xs">mic</span> Speak';
+                micBtn.innerHTML = `<span class="material-symbols-outlined text-xs">mic</span> ${translations[currentLang].btn_speak}`;
                 micBtn.classList.remove('ring-2', 'ring-red-400');
             }
         };
-
         recognition.start();
     };
 
@@ -334,12 +362,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             showResponse('Connection failed. Please check server.', true);
         } finally {
-            btn.innerHTML = 'Ask AgroGPT <span class="material-symbols-outlined">send</span>';
+            btn.innerHTML = `${translations[currentLang].btn_ask} <span class="material-symbols-outlined">send</span>`;
             btn.disabled = false;
         }
     };
 
-    // Allow Enter key (without Shift) to submit
     const qInput = document.getElementById('questionInput');
     if (qInput) {
         qInput.addEventListener('keydown', (e) => {
@@ -355,7 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const rt = document.getElementById('responseText');
         if (!rc || !rt) return;
         rc.style.display = 'block';
-        // Preserve newlines for the multi-language output
         rt.style.whiteSpace = 'pre-wrap';
         rt.textContent = text;
         rc.style.borderLeftColor = isError ? '#ba1a1a' : '#006e2f';
@@ -373,17 +399,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (uploadArea && imageInput) {
         uploadArea.onclick = () => {
-            if (!isLoggedIn) {
-                openAuthModal();
-                return;
-            }
+            if (!isLoggedIn) { openAuthModal(); return; }
             imageInput.click();
         };
-
         imageInput.onchange = (e) => {
             if (e.target.files.length > 0) handleFile(e.target.files[0]);
         };
-
         uploadArea.ondragover = (e) => { e.preventDefault(); uploadArea.classList.add('border-secondary'); };
         uploadArea.ondragleave = () => { uploadArea.classList.remove('border-secondary'); };
         uploadArea.ondrop = (e) => {
@@ -428,14 +449,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             showResponse('Connection failed.', true);
         } finally {
-            btn.innerHTML = 'Analyze';
+            btn.innerHTML = translations[currentLang].btn_analyze;
             btn.disabled = false;
         }
     };
 
-    // =============================================
-    // QUICK SUGGESTION CHIPS — wire to textarea
-    // =============================================
     document.querySelectorAll('[data-suggestion]').forEach(btn => {
         btn.addEventListener('click', () => {
             const q = document.getElementById('questionInput');
