@@ -1,5 +1,105 @@
-
 document.addEventListener('DOMContentLoaded', () => {
+
+    // =============================================
+    // LANGUAGE / I18N LOGIC
+    // =============================================
+    let currentLang = 'en';
+    const translations = {
+        en: {
+            nav_dashboard: "Dashboard",
+            hero_title_1: "Smart Agriculture Intelligence",
+            hero_title_2: "at Your",
+            hero_title_3: "Fingertips",
+            hero_subtitle: "Empowering farmers with real-time data, AI-driven crop health analysis, and elite precision agronomy for a sustainable future.",
+            card_ask_title: "Ask Agriculture Assistant",
+            placeholder_question: "e.g. 'What is the ideal soil pH for organic tomato farming in clay soil?'",
+            btn_speak: "Speak",
+            btn_ask: "Ask AgroGPT",
+            response_header: "✨ AgroGPT Answer",
+            btn_analyze: "Analyze",
+            btn_clear: "Clear",
+            card_scanner_title: "Plant Disease Scanner",
+            upload_text: "Upload or Drag an image of the plant leaf",
+            upload_subtext: "Supports JPG, PNG, up to 10MB",
+            weather_live: "Live",
+            weather_loading: "Loading...",
+            weather_humidity: "Humidity",
+            weather_wind: "Wind",
+            card_try_title: "Try Asking",
+            try_pest: "Pest control for corn",
+            try_market: "Market rates for wheat",
+            try_fertilizer: "Organic fertilizers",
+            try_drought: "Drought resistance",
+            card_tips_title: "Pro Tips",
+            tip_1_title: "Optimal Seeding",
+            tip_1_desc: "Early morning seeding improves moisture retention by 14%.",
+            tip_2_title: "AI Soil Mapping",
+            tip_2_desc: "Update your soil maps every 90 days for peak accuracy.",
+            tip_3_title: "Crop Rotation",
+            tip_3_desc: "Rotating legumes with grains naturally replenishes nitrogen."
+        },
+        ta: {
+            nav_dashboard: "டாஷ்போர்டு",
+            hero_title_1: "ஸ்மார்ட் விவசாய நுண்ணறிவு",
+            hero_title_2: "உங்கள்",
+            hero_title_3: "விரல் நுனியில்",
+            hero_subtitle: "நிகழ்நேர தரவு, AI-இயக்கப்படும் பயிர் சுகாதார பகுப்பாய்வு மற்றும் நிலையான எதிர்காலத்திற்கான துல்லியமான வேளாண்மை மூலம் விவசாயிகளுக்கு அதிகாரம் அளித்தல்.",
+            card_ask_title: "விவசாய உதவியாளரிடம் கேளுங்கள்",
+            placeholder_question: "எ.கா. 'களிமண் மண்ணில் கரிம தக்காளி விவசாயத்திற்கு உகந்த மண் pH என்ன?'",
+            btn_speak: "பேச",
+            btn_ask: "AgroGPT-யிடம் கேட்க",
+            response_header: "✨ AgroGPT பதில்",
+            btn_analyze: "பகுப்பாய்வு",
+            btn_clear: "அழி",
+            card_scanner_title: "தாவர நோய் ஸ்கேனர்",
+            upload_text: "தாவர இலையின் படத்தை பதிவேற்றவும் அல்லது இழுக்கவும்",
+            upload_subtext: "JPG, PNG ஆதரவு, 10MB வரை",
+            weather_live: "நேரலை",
+            weather_loading: "ஏற்றப்படுகிறது...",
+            weather_humidity: "ஈரப்பதம்",
+            weather_wind: "காற்று",
+            card_try_title: "முயற்சி செய்து பாருங்கள்",
+            try_pest: "சோளத்திற்கான பூச்சி கட்டுப்பாடு",
+            try_market: "கோதுமைக்கான சந்தை விலைகள்",
+            try_fertilizer: "கரிம உரங்கள்",
+            try_drought: "வறட்சி எதிர்ப்பு",
+            card_tips_title: "நிபுணர் குறிப்புகள்",
+            tip_1_title: "சிறந்த விதைப்பு",
+            tip_1_desc: "அதிகாலை விதைப்பு ஈரப்பதத்தை 14% மேம்படுத்துகிறது.",
+            tip_2_title: "AI மண் வரைபடம்",
+            tip_2_desc: "துல்லியத்திற்காக ஒவ்வொரு 90 நாட்களுக்கும் உங்கள் மண் வரைபடங்களை புதுப்பிக்கவும்.",
+            tip_3_title: "பயிர் சுழற்சி",
+            tip_3_desc: "பருப்பு வகைகளை தானியங்களுடன் சுழற்றுவது இயற்கையாகவே நைட்ரஜனை நிரப்புகிறது."
+        }
+    };
+
+    function updateContent() {
+        const langData = translations[currentLang];
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (langData[key]) {
+                el.innerText = langData[key];
+            }
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (langData[key]) {
+                el.placeholder = langData[key];
+            }
+        });
+        const langDisplay = document.getElementById('langDisplay');
+        if (langDisplay) {
+            langDisplay.innerText = currentLang === 'en' ? 'தமிழ்' : 'English';
+        }
+    }
+
+    window.toggleLanguage = () => {
+        currentLang = currentLang === 'en' ? 'ta' : 'en';
+        updateContent();
+    };
+
+    // Initialize English content labels
+    updateContent();
 
     // =============================================
     // AUTH MODAL LOGIC

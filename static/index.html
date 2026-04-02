@@ -91,10 +91,14 @@
 <span class="text-xl font-bold tracking-[0.15em] text-emerald-900 uppercase font-['Inter']">AgroGPT</span>
 </div>
 <div class="hidden md:flex items-center gap-10">
-<span class="text-emerald-700 font-semibold border-b-2 border-emerald-700 pb-1 font-['Inter'] tracking-tight">Dashboard</span>
+<span data-i18n="nav_dashboard" class="text-emerald-700 font-semibold border-b-2 border-emerald-700 pb-1 font-['Inter'] tracking-tight">Dashboard</span>
 </div>
 <div class="flex items-center gap-4">
 
+<!-- Language Toggle -->
+<button onclick="toggleLanguage()" class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-200 hover:bg-emerald-50 transition-all text-xs font-bold text-emerald-900">
+    <span id="langDisplay">தமிழ்</span>
+</button>
 
 <button id="authHeaderBtn" onclick="openAuthModal()" class="p-2.5 hover:bg-emerald-50/50 rounded-full transition-all active:scale-95 duration-200">
 <span class="material-symbols-outlined text-emerald-900 text-3xl" data-icon="account_circle">account_circle</span>
@@ -110,9 +114,10 @@
 <!-- Hero Section -->
 <div class="text-center mb-16">
 <h1 class="text-[3.5rem] font-semibold tracking-tight text-on-surface leading-tight mb-4">
-                Smart Agriculture Intelligence <br/>at Your <span class="text-gradient-green font-extrabold">Fingertips</span>
+                <span data-i18n="hero_title_1">Smart Agriculture Intelligence</span> <br/>
+                <span data-i18n="hero_title_2">at Your</span> <span data-i18n="hero_title_3" class="text-gradient-green font-extrabold">Fingertips</span>
 </h1>
-<p class="text-on-surface-variant text-lg max-w-2xl mx-auto opacity-70">
+<p data-i18n="hero_subtitle" class="text-on-surface-variant text-lg max-w-2xl mx-auto opacity-70">
                 Empowering farmers with real-time data, AI-driven crop health analysis, and elite precision agronomy for a sustainable future.
             </p>
 </div>
@@ -124,20 +129,20 @@
 <section class="bg-surface-container-lowest rounded-lg p-10 shadow-[0_40px_40px_rgba(18,81,44,0.04)] relative overflow-hidden">
 <div class="flex items-center gap-3 mb-8">
 <span class="material-symbols-outlined text-primary text-3xl" data-icon="auto_awesome">auto_awesome</span>
-<h2 class="text-2xl font-semibold text-on-surface">Ask Agriculture Assistant</h2>
+<h2 data-i18n="card_ask_title" class="text-2xl font-semibold text-on-surface">Ask Agriculture Assistant</h2>
 </div>
 <div class="space-y-6">
 <div class="relative">
-<textarea id="questionInput" class="w-full bg-surface-container-low border-none rounded-lg p-6 min-h-[160px] text-lg focus:ring-4 focus:ring-secondary/10 transition-all placeholder:text-on-surface-variant/40 resize-none" placeholder="e.g. 'What is the ideal soil pH for organic tomato farming in clay soil?'"></textarea>
+<textarea id="questionInput" data-i18n-placeholder="placeholder_question" class="w-full bg-surface-container-low border-none rounded-lg p-6 min-h-[160px] text-lg focus:ring-4 focus:ring-secondary/10 transition-all placeholder:text-on-surface-variant/40 resize-none" placeholder="e.g. 'What is the ideal soil pH for organic tomato farming in clay soil?'"></textarea>
 </div>
 <div class="flex items-center justify-between">
 <div class="flex gap-3">
 <button id="voiceMicBtn" onclick="startVoiceInput()" class="flex items-center gap-2 px-5 py-2.5 glass-card ghost-edge rounded-full text-sm font-medium hover:bg-white transition-all shadow-sm" title="Speak your question">
-<span class="material-symbols-outlined text-xs" data-icon="mic">mic</span> Speak
+<span class="material-symbols-outlined text-xs" data-icon="mic">mic</span> <span data-i18n="btn_speak">Speak</span>
 </button>
 </div>
 <button id="askButton" onclick="askQuestion()" class="bg-primary-container text-on-primary-container px-8 py-4 rounded-full font-bold flex items-center gap-3 shadow-lg shadow-primary/10 hover:-translate-y-1 active:scale-95 transition-all">
-                                Ask AgroGPT
+                                <span data-i18n="btn_ask">Ask AgroGPT</span>
                                 <span class="material-symbols-outlined" data-icon="send">send</span>
 </button>
 </div>
@@ -146,28 +151,28 @@
 <!-- AI Response Card (Mock) -->
 <section id="responseContainer" class="bg-white rounded-lg p-10 ai-border-gradient shadow-[0_40px_40px_rgba(18,81,44,0.04)] hidden">
 <div class="flex items-center gap-2 mb-6">
-<span class="text-[0.65rem] font-black uppercase tracking-[0.3em] text-secondary">✨ AgroGPT Answer</span>
+<span data-i18n="response_header" class="text-[0.65rem] font-black uppercase tracking-[0.3em] text-secondary">✨ AgroGPT Answer</span>
 </div>
 <div class="prose prose-emerald max-w-none">
 <p class="text-xl leading-relaxed text-on-surface font-light">
-                            <span id="responseText">Based on regional data for your district, the ideal soil pH for organic tomato farming ranges from <span class="font-semibold text-primary">6.0 to 6.8</span>. Your last soil analysis indicated a pH of 7.2. We recommend applying organic sulfur or peat moss to slightly lower the alkalinity before the next planting cycle.</span>
+                            <span id="responseText"></span>
                         </p>
 </div>
 </section>
 <!-- Plant Disease Scanner Card -->
 <input type="file" id="imageInput" class="hidden" accept="image/*">
-<div id="previewContainer" class="hidden mt-4 text-center"><img id="previewImg" class="max-h-64 mx-auto rounded-lg shadow-md mb-4"><div class="flex gap-4 justify-center"><button id="analyzeButton" onclick="analyzeImage()" class="bg-secondary text-white px-6 py-2 rounded-full font-bold">Analyze</button><button onclick="removeImage()" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-bold">Clear</button></div></div>
+<div id="previewContainer" class="hidden mt-4 text-center"><img id="previewImg" class="max-h-64 mx-auto rounded-lg shadow-md mb-4"><div class="flex gap-4 justify-center"><button id="analyzeButton" onclick="analyzeImage()" data-i18n="btn_analyze" class="bg-secondary text-white px-6 py-2 rounded-full font-bold">Analyze</button><button onclick="removeImage()" data-i18n="btn_clear" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-bold">Clear</button></div></div>
 <section class="bg-surface-container-lowest rounded-lg p-10 shadow-[0_40px_40px_rgba(18,81,44,0.04)]">
 <div class="flex items-center gap-3 mb-8">
 <span class="material-symbols-outlined text-primary text-3xl" data-icon="camera">camera</span>
-<h2 class="text-2xl font-semibold text-on-surface">Plant Disease Scanner</h2>
+<h2 data-i18n="card_scanner_title" class="text-2xl font-semibold text-on-surface">Plant Disease Scanner</h2>
 </div>
 <div id="uploadArea" class="border-2 border-dashed border-outline-variant rounded-lg p-12 flex flex-col items-center justify-center bg-surface-container-low/30 hover:bg-surface-container-low/50 transition-colors group cursor-pointer">
 <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
 <span class="material-symbols-outlined text-4xl text-secondary" data-icon="add_a_photo">add_a_photo</span>
 </div>
-<p class="text-on-surface font-medium mb-1">Upload or Drag an image of the plant leaf</p>
-<p class="text-on-surface-variant text-sm opacity-60">Supports JPG, PNG, up to 10MB</p>
+<p data-i18n="upload_text" class="text-on-surface font-medium mb-1">Upload or Drag an image of the plant leaf</p>
+<p data-i18n="upload_subtext" class="text-on-surface-variant text-sm opacity-60">Supports JPG, PNG, up to 10MB</p>
 </div>
 </section>
 </div>
@@ -219,12 +224,12 @@
 <option value="Virudhunagar">Virudhunagar</option>
 </select>
 </div>
-<span class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-widest">Live</span>
+<span data-i18n="weather_live" class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-widest">Live</span>
 </div>
 <div class="flex items-center justify-between mb-10">
 <div class="flex flex-col">
 <span class="text-6xl font-light tracking-tighter text-on-surface"><span id="weatherTemp">--</span><span class="text-3xl align-top">°C</span></span>
-<span id="weatherCondition" class="text-on-surface-variant font-medium mt-1">Loading...</span>
+<span id="weatherCondition" data-i18n="weather_loading" class="text-on-surface-variant font-medium mt-1">Loading...</span>
 </div>
 <span id="weatherEmoji" class="text-[5rem]">🌤️</span>
 </div>
@@ -232,14 +237,14 @@
 <div class="bg-white/40 rounded-2xl p-4 flex items-center gap-3">
 <span class="material-symbols-outlined text-on-surface-variant" data-icon="humidity_percentage">humidity_percentage</span>
 <div>
-<p class="text-[0.6rem] uppercase tracking-wider text-on-surface-variant/60">Humidity</p>
+<p data-i18n="weather_humidity" class="text-[0.6rem] uppercase tracking-wider text-on-surface-variant/60">Humidity</p>
 <p class="font-bold text-on-surface" id="weatherHumidity">--%</p>
 </div>
 </div>
 <div class="bg-white/40 rounded-2xl p-4 flex items-center gap-3">
 <span class="material-symbols-outlined text-on-surface-variant" data-icon="air">air</span>
 <div>
-<p class="text-[0.6rem] uppercase tracking-wider text-on-surface-variant/60">Wind</p>
+<p data-i18n="weather_wind" class="text-[0.6rem] uppercase tracking-wider text-on-surface-variant/60">Wind</p>
 <p class="font-bold text-on-surface" id="weatherWind">-- km/h</p>
 </div>
 </div>
@@ -247,37 +252,37 @@
 </section>
 <!-- Try Asking Card -->
 <section class="bg-surface-container-lowest rounded-lg p-8 shadow-[0_40px_40px_rgba(18,81,44,0.04)]">
-<h3 class="text-lg font-semibold mb-6 text-on-surface">Try Asking</h3>
+<h3 data-i18n="card_try_title" class="text-lg font-semibold mb-6 text-on-surface">Try Asking</h3>
 <div class="flex flex-wrap gap-3">
-<button class="px-5 py-2.5 bg-surface-container-low rounded-full text-sm font-medium text-primary hover:bg-primary hover:text-white hover:-translate-y-1 transition-all duration-300">
+<button data-i18n="try_pest" class="px-5 py-2.5 bg-surface-container-low rounded-full text-sm font-medium text-primary hover:bg-primary hover:text-white hover:-translate-y-1 transition-all duration-300">
                             Pest control for corn
                         </button>
-<button class="px-5 py-2.5 bg-surface-container-low rounded-full text-sm font-medium text-primary hover:bg-primary hover:text-white hover:-translate-y-1 transition-all duration-300">
+<button data-i18n="try_market" class="px-5 py-2.5 bg-surface-container-low rounded-full text-sm font-medium text-primary hover:bg-primary hover:text-white hover:-translate-y-1 transition-all duration-300">
                             Market rates for wheat
                         </button>
-<button class="px-5 py-2.5 bg-surface-container-low rounded-full text-sm font-medium text-primary hover:bg-primary hover:text-white hover:-translate-y-1 transition-all duration-300">
+<button data-i18n="try_fertilizer" class="px-5 py-2.5 bg-surface-container-low rounded-full text-sm font-medium text-primary hover:bg-primary hover:text-white hover:-translate-y-1 transition-all duration-300">
                             Organic fertilizers
                         </button>
-<button class="px-5 py-2.5 bg-surface-container-low rounded-full text-sm font-medium text-primary hover:bg-primary hover:text-white hover:-translate-y-1 transition-all duration-300">
+<button data-i18n="try_drought" class="px-5 py-2.5 bg-surface-container-low rounded-full text-sm font-medium text-primary hover:bg-primary hover:text-white hover:-translate-y-1 transition-all duration-300">
                             Drought resistance
                         </button>
 </div>
 </section>
 <!-- Pro Tips Card -->
 <section class="bg-surface-container-lowest rounded-lg p-8 shadow-[0_40px_40px_rgba(18,81,44,0.04)]">
-<h3 class="text-lg font-semibold mb-6 text-on-surface">Pro Tips</h3>
+<h3 data-i18n="card_tips_title" class="text-lg font-semibold mb-6 text-on-surface">Pro Tips</h3>
 <div class="space-y-4">
 <div class="p-4 border-l-4 border-secondary bg-surface-container-low/40 rounded-r-lg">
-<h4 class="text-sm font-bold text-primary mb-1">Optimal Seeding</h4>
-<p class="text-xs text-on-surface-variant leading-relaxed">Early morning seeding improves moisture retention by 14%.</p>
+<h4 data-i18n="tip_1_title" class="text-sm font-bold text-primary mb-1">Optimal Seeding</h4>
+<p data-i18n="tip_1_desc" class="text-xs text-on-surface-variant leading-relaxed">Early morning seeding improves moisture retention by 14%.</p>
 </div>
 <div class="p-4 border-l-4 border-tertiary bg-surface-container-low/40 rounded-r-lg">
-<h4 class="text-sm font-bold text-tertiary mb-1">AI Soil Mapping</h4>
-<p class="text-xs text-on-surface-variant leading-relaxed">Update your soil maps every 90 days for peak accuracy.</p>
+<h4 data-i18n="tip_2_title" class="text-sm font-bold text-tertiary mb-1">AI Soil Mapping</h4>
+<p data-i18n="tip_2_desc" class="text-xs text-on-surface-variant leading-relaxed">Update your soil maps every 90 days for peak accuracy.</p>
 </div>
 <div class="p-4 border-l-4 border-primary bg-surface-container-low/40 rounded-r-lg">
-<h4 class="text-sm font-bold text-primary mb-1">Crop Rotation</h4>
-<p class="text-xs text-on-surface-variant leading-relaxed">Rotating legumes with grains naturally replenishes nitrogen.</p>
+<h4 data-i18n="tip_3_title" class="text-sm font-bold text-primary mb-1">Crop Rotation</h4>
+<p data-i18n="tip_3_desc" class="text-xs text-on-surface-variant leading-relaxed">Rotating legumes with grains naturally replenishes nitrogen.</p>
 </div>
 </div>
 </section>
