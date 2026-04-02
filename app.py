@@ -218,16 +218,16 @@ def ask_question():
 
     try:
         # Construct prompt
+        weather_section = f"\n\n[Weather Context]: {weather_context.strip()}" if weather_context.strip() else ""
         full_prompt = (
             "You are AgroGPT, an expert agriculture assistant. "
             "Answer the following question clearly and concisely in plain text. "
-            "Provide the main answer in English, then add a section header 'Malayalam Summary:' with the translation in native Malayalam (മലയാളം) script, "
-            "then a section header 'Tamil Summary:' with the translation in native Tamil (தமிழ்) script. "
-            "Use double line breaks between these sections. "
-            "CRITICAL: Do not use Latin/English alphabets for Malayalam or Tamil. "
-            "Do not use markdown formatting or asterisks (*).\n\n"
-            f"{weather_context}\n"
-            f"Question: {question}\nAnswer:"
+            "Structure your response EXACTLY as follows:\n"
+            "1. Provide a helpful answer in English.\n"
+            "2. Then write the header 'Malayalam Summary:' followed by the FULL answer translated into native Malayalam script (മലയാളം). Do NOT use English/Latin letters for Malayalam.\n"
+            "3. Then write the header 'Tamil Summary:' followed by the FULL answer translated into native Tamil script (தமிழ்). Do NOT use English/Latin letters for Tamil.\n"
+            "Use double line breaks between each section. Do NOT use markdown, asterisks, or bullet points.\n\n"
+            f"Question: {question}{weather_section}\n\nAnswer:"
         )
         
         print(f"Asking Ollama: {question}", flush=True)
