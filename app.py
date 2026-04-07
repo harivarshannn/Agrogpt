@@ -228,17 +228,18 @@ def ask_question():
         # Fetch RAG context
         print("Fetching expert PDF knowledge context...", flush=True)
         rag_context = query_rag(question)
-        rag_section = f"\n\n[Expert PDF Advisory Knowledge Base Context]:\n{rag_context}\n\nUse this information above to enhance your answer if relevant." if rag_context else ""
+        rag_section = f"\n\n[Expert Advisory Knowledge Base Context]:\n{rag_context}\n[End of Knowledge Base]\n\n" if rag_context else ""
 
         full_prompt = (
             "You are AgroGPT, an expert agriculture assistant with access to detailed agricultural advisory documents. "
-            "Answer the following question clearly and concisely in plain text. "
+            f"{rag_section}"
+            "Answer the following question clearly and concisely in plain text. DO NOT visibly print out or quote the Knowledge Base Context provided above. Synthesize the information naturally into your conversational answer.\n\n"
             "Structure your response EXACTLY as follows:\n"
             "1. Provide a helpful, robust answer in English. Ensure you include relevant information from the knowledge base if available.\n"
             "2. Then write the header 'Malayalam Summary:' followed by the FULL answer translated into native Malayalam script (മലയാളം). Do NOT use English/Latin letters for Malayalam.\n"
             "3. Then write the header 'Tamil Summary:' followed by the FULL answer translated into native Tamil script (தமிழ்). Do NOT use English/Latin letters for Tamil.\n"
             "Use double line breaks between each section. Do NOT use markdown, asterisks, or bullet points.\n\n"
-            f"Question: {question}{weather_section}{rag_section}\n\nAnswer:"
+            f"Question: {question}{weather_section}\n\nAnswer:"
         )
         
         print(f"Asking Ollama: {question}", flush=True)
