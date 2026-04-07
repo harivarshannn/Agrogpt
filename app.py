@@ -18,6 +18,7 @@ import requests
 # Import the new model functionality
 from model import check_ollama_connection, generate_with_ollama, analyze_image_for_disease
 from weather import get_current_weather, TN_DISTRICTS
+from rag_engine import initialize_knowledge_base, query_rag
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable static file caching
@@ -113,6 +114,10 @@ def check_backend_status():
         ollama_connected = False
         status_message = "Error: Could not connect to Ollama. Ensure GROQ_API_KEY is set in .env."
         print(status_message, flush=True)
+
+    # Initialize the vector DB in the background
+    print("Triggering background RAG knowledge base initialization...", flush=True)
+    threading.Thread(target=initialize_knowledge_base).start()
 
 @app.route('/')
 def index():
@@ -219,15 +224,21 @@ def ask_question():
     try:
         # Construct prompt
         weather_section = f"\n\n[Weather Context]: {weather_context.strip()}" if weather_context.strip() else ""
+        
+        # Fetch RAG context
+        print("Fetching expert PDF knowledge context...", flush=True)
+        rag_context = query_rag(question)
+        rag_section = f"\n\n[Expert PDF Advisory Knowledge Base Context]:\n{rag_context}\n\nUse this information above to enhance your answer if relevant." if rag_context else ""
+
         full_prompt = (
-            "You are AgroGPT, an expert agriculture assistant. "
+            "You are AgroGPT, an expert agriculture assistant with access to detailed agricultural advisory documents. "
             "Answer the following question clearly and concisely in plain text. "
             "Structure your response EXACTLY as follows:\n"
-            "1. Provide a helpful answer in English.\n"
+            "1. Provide a helpful, robust answer in English. Ensure you include relevant information from the knowledge base if available.\n"
             "2. Then write the header 'Malayalam Summary:' followed by the FULL answer translated into native Malayalam script (മലയാളം). Do NOT use English/Latin letters for Malayalam.\n"
             "3. Then write the header 'Tamil Summary:' followed by the FULL answer translated into native Tamil script (தமிழ்). Do NOT use English/Latin letters for Tamil.\n"
             "Use double line breaks between each section. Do NOT use markdown, asterisks, or bullet points.\n\n"
-            f"Question: {question}{weather_section}\n\nAnswer:"
+            f"Question: {question}{weather_section}{rag_section}\n\nAnswer:"
         )
         
         print(f"Asking Ollama: {question}", flush=True)

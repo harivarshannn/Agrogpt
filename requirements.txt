@@ -19,6 +19,27 @@ numpy>=1.21.0
 # Data processing
 pandas>=1.3.0
 scikit-learn>=1.0.0
+# AgroGPT Requirements
+# Core web framework
+Flask==3.1.2
+Werkzeug==3.1.3
+
+# LLM Interface
+# ollama>=0.1.0
+groq>=0.9.0
+
+# Machine Learning and AI (for Vision Model)
+# Restored for Azure deployment
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Image processing
+Pillow>=9.0.0
+numpy>=1.21.0
+
+# Data processing
+pandas>=1.3.0
+scikit-learn>=1.0.0
 scipy>=1.7.0
 
 # Utilities
@@ -36,3 +57,12 @@ Flask-Login>=0.6.3
 Flask-SQLAlchemy>=3.1.1
 Flask-Limiter>=3.7.0
 psycopg2-binary>=2.9.9
+
+# RAG and LangChain requirements
+langchain>=0.1.0
+langchain-community>=0.0.10
+langchain-groq>=0.0.1
+langchain-huggingface>=0.0.1
+pypdf>=4.0.0
+faiss-cpu>=1.7.0
+sentence-transformers>=2.2.0
