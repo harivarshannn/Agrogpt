@@ -14,7 +14,7 @@ PDF_FILES = [
 ]
 
 # Writeable path on Hugging Face for the vector store
-VECTORSTORE_DIR = "/tmp/vectorstore"
+VECTORSTORE_DIR = "vectorstore"
 
 # Global variable to hold the FAISS index in memory
 _vector_store = None
